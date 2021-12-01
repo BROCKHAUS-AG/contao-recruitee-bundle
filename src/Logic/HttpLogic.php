@@ -42,5 +42,4 @@ class HttpLogic
         }
         return json_decode($response, true);
     }
-
 }

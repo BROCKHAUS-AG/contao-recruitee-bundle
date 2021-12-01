@@ -55,4 +55,11 @@ class IOLogic {
     {
         return $this->loadJsonFileAndDecode(PATH. "config.json");
     }
+
+    public function saveJsonJobsToFile(string $jobs)
+    {
+        $fileHandle = fopen(PATH. 'recruiteeJobs.json', 'w');
+        fwrite($fileHandle, $jobs);
+        fclose($fileHandle);
+    }
 }

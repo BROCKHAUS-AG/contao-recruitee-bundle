@@ -8,6 +8,11 @@ use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment as TwigEnvironment;
 use Psr\Log\LoggerInterface;
 
+
+DEFINE("RECRUITEE_URL", "https://api.recruitee.com");
+DEFINE("OFFERS_URL", RECRUITEE_URL."/c/%s/offers");
+DEFINE("OFFERS_BY_ID_URL", OFFERS_URL. "/%d");
+
 class LoadJobsLogic
 {
     private $twig;
@@ -28,19 +33,7 @@ class LoadJobsLogic
         $this->locations = $this->_ioLogic->loadRecruiteeConfig()["locations"];
     }
 
-    private function getJobsFromApi(string $companyId, string $bearerToken) : ?array
-    {
-        $url = "https://api.recruitee.com/c/".$companyId."/offers";
-        return $this->_httpLogic->httpGetWithBearerToken($url, $bearerToken);
-    }
-
-    private function getOfferFromApiById(int $offerId, string $bearerToken, string $companyId) : ?array
-    {
-        $url = "https://api.recruitee.com/c/" . $companyId . "/offers/".$offerId;
-        return $this->_httpLogic->httpGetWithBearerToken($url, $bearerToken);
-    }
-
-    private function createJob($job, array $offer, string $category) : ?array
+    private function createJob(array $job, array $offer, string $category) : ?array
     {
         $jobDescription = $offer["description"];
         $requirements = $offer["requirements"];
@@ -59,38 +52,42 @@ class LoadJobsLogic
         return null;
     }
 
-    private function getJob(string $companyIdentifier, string $bearerToken, string $category) : ?string
+    private function getJob(string $companyIdentifier, string $bearerToken, string $category) : array
     {
         $jobs = $this->getJobsFromApi($companyIdentifier, $bearerToken);
-
+        $jobDescriptions = array();
         if ($jobs) {
-            $jobDescriptions = array();
             foreach($jobs["offers"] as $job) {
-                $offer = $this->getOfferFromApiById($job["id"], $bearerToken, $companyIdentifier);
-                $jobDescription = $this->createJob($job, $offer["offer"], $category);
+                $offer = $this->getOfferFromApiById($job["id"], $bearerToken, $companyIdentifier)["offer"];
+                $jobDescription = $this->createJob($job, $offer, $category);
                 if ($jobDescription) {
                     array_push($jobDescriptions, $jobDescription);
                 }
             }
-            return json_encode($jobDescriptions);
         }
-        return null;
+        return $jobDescriptions;
     }
 
-    private function getJobs() : string
+    private function getJobs() : array
     {
         $jobs = array();
         foreach ($this->locations as $location) {
             $job = $this->getJob($location["companyIdentifier"], $location["bearerToken"], $location["category"]);
             array_push( $jobs, $job);
         }
+        return $jobs;
+    }
 
-        return json_encode($jobs);
+    private function saveJobs(array $jobs)
+    {
+        $jsonJobs = json_encode($jobs);
+        $this->_ioLogic->saveJsonJobsToFile($jsonJobs);
     }
 
     public function loadJobs() : Response
     {
         $jobs = $this->getJobs();
+        $this->saveJobs($jobs);
 
         return new Response($this->twig->render(
             '@BrockhausAgContaoRecruitee/LoadJobs/loadJobs.html.twig', [

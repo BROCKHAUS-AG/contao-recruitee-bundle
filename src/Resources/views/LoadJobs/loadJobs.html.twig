@@ -2,6 +2,11 @@
     <h1>Jobs wurden geladen</h1>
     <p>
         Jobs: <br/>
-        {{ jobs }}
+
+        {%  for location in jobs %}
+            {%  for job in location %}
+                Id: {{ job["id"] }}, Stellenname: {{ job["stellenname"] }} <br/>
+            {%  endfor %}
+        {% endfor %}
     </p>
 {% endblock %}
