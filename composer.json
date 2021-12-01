@@ -1,0 +1,43 @@
+{
+    "name": "brockhaus-ag/contao-recruitee-bundle",
+    "description": "Contao Recuritee Bundle der BROCKHAUS AG",
+    "keywords": [
+        "contao",
+        "bundle",
+        "tag 3",
+        "tag 4"
+    ],
+    "type": "contao-bundle",
+    "license": "GPL-3.0-or-later",
+    "authors": [
+        {
+            "name": "BROCKHAUS AG",
+            "email": "info@brockhaus-ag.de",
+            "homepage": "https://www.brockhaus-ag.de",
+            "role": "Developer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/brockhaus-ag/contao-recruitee-bundle/issues",
+        "source": "https://github.com/brockhaus-ag/contao-recruitee-bundle"
+    },
+    "require": {
+        "contao/core-bundle": "^4.9"
+    },
+    "require-dev": {
+        "contao/manager-plugin": "^2.3",
+        "contao/test-case": "^4.0",
+        "phpunit/phpunit": "^8.4",
+        "symfony/http-client": "4.4.*",
+        "symfony/phpunit-bridge": "4.4.*"
+    },
+    "autoload": {
+        "psr-4": {
+            "BrockhausAg\\ContaoRecruiteeBundle\\": "src/"
+        }
+    },
+    "extra": {
+        "contao-manager-plugin": "BrockhausAg\\ContaoRecruiteeBundle\\ContaoManager\\Plugin"
+    },
+    "version": "1.0"
+}

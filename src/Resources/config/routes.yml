@@ -1,0 +1,3 @@
+brockhaus_ag_contao_recruitee.controller:
+    resource: ../../../src/Controller
+    type: annotation
