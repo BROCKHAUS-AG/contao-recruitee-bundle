@@ -78,6 +78,28 @@ class LoadJobsLogic
         return $jobs;
     }
 
+    private function createOffersUrlWithCompanyId(string $companyId) : string
+    {
+        return sprintf(OFFERS_URL, $companyId);
+    }
+
+    private function createOffersURLWithCompanyIdAndOfferId(string $companyId, int $offerId) : string
+    {
+        return sprintf(OFFERS_BY_ID_URL, $companyId, $offerId);
+    }
+
+    private function getJobsFromApi(string $companyId, string $bearerToken) : ?array
+    {
+        $offersUrl = $this->createOffersUrlWithCompanyId($companyId);
+        return $this->_httpLogic->httpGetWithBearerToken($offersUrl, $bearerToken);
+    }
+
+    private function getOfferFromApiById(int $offerId, string $bearerToken, string $companyId) : ?array
+    {
+        $offersUrl = $this->createOffersURLWithCompanyIdAndOfferId($companyId, $offerId);
+        return $this->_httpLogic->httpGetWithBearerToken($offersUrl, $bearerToken);
+    }
+
     private function saveJobs(array $jobs)
     {
         $jsonJobs = json_encode($jobs);
