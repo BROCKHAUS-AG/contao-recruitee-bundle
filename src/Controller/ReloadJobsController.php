@@ -16,35 +16,36 @@ declare(strict_types=1);
 
 namespace BrockhausAg\ContaoRecruiteeBundle\Controller;
 
-use BrockhausAg\ContaoRecruiteeBundle\Logic\CandidatesLogic;
+use BrockhausAg\ContaoRecruiteeBundle\Logic\ReloadJobsLogic;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment as TwigEnvironment;
+use Psr\Log\LoggerInterface;
 
 /**
- * Class CandidatesController
+ * Class ReloadJobsController
  *
- * @Route("/recruitee/candidates",
- *     name="brockhaus_ag_contao_recruitee_candidates",
+ * @Route("/recruitee/reload-jobs",
+ *     name="brockhaus_ag_contao_recruitee_reload_jobs",
  *     defaults={
  *         "_scope" = "frontend",
  *         "_token_check" = true
  *     }
  * )
  */
-
-class CandidatesController extends AbstractController
+class ReloadJobsController extends AbstractController
 {
-    private $_candidatesLogic;
+    private $_loadJobsLogic;
 
-    public function __construct(TwigEnvironment $twig)
+    public function __construct(TwigEnvironment $twig,
+                                LoggerInterface $logger)
     {
-        $this->_candidatesLogic = new CandidatesLogic($twig);
+        $this->_loadJobsLogic = new ReloadJobsLogic($twig, $logger);
     }
 
-    /*public function __invoke($_POST, $_FILES)
+    public function __invoke() : Response
     {
-        $this->_candidatesLogic->addCandidate($_POST, $_FILES);
-    }*/
+        return $this->_loadJobsLogic->loadJobs();
+    }
 }

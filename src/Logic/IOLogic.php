@@ -24,7 +24,7 @@ DEFINE("PATH", "/html/contao/settings/brockhaus-ag/contao-recruitee-bundle/");
 
 class IOLogic {
 
-    private $logger;
+    private LoggerInterface $logger;
 
     public function __construct(LoggerInterface $logger)
     {

@@ -16,30 +16,28 @@ namespace BrockhausAg\ContaoRecruiteeBundle\Controller;
 
 use BrockhausAg\ContaoRecruiteeBundle\Logic\LoadJobsLogic;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment as TwigEnvironment;
-use Psr\Log\LoggerInterface;
 
 /**
  * Class LoadJobsController
  *
  * @Route("/recruitee/load-jobs",
- *     name="brockhaus_ag_contao_recruitee_load_jobs",
+ *     name="brockhaus_ag_contao_recruitee_load-jobs",
  *     defaults={
  *         "_scope" = "frontend",
  *         "_token_check" = true
  *     }
  * )
  */
+
 class LoadJobsController extends AbstractController
 {
-    private $_loadJobsLogic;
+    private LoadJobsLogic $_loadJobsLogic;
 
-    public function __construct(TwigEnvironment $twig,
-                                LoggerInterface $logger)
+    public function __construct(TwigEnvironment $twig)
     {
-        $this->_loadJobsLogic = new LoadJobsLogic($twig, $logger);
+        $this->_loadJobsLogic = new LoadJobsLogic($twig);
     }
 
     public function __invoke() : Response
