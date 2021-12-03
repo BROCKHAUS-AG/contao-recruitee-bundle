@@ -17,16 +17,24 @@ declare(strict_types=1);
 namespace BrockhausAg\ContaoRecruiteeBundle\Logic;
 
 
-use Contao\Form;
+use Contao\CoreBundle\Monolog\ContaoContext;
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 
 class AddCandidatesLogic
 {
+    private LoggerInterface $logger;
 
-    public function __construct() {}
-
-
-    public function addCandidate(array $submittedData, array $formData, ?array $files, array $labels, Form $form) : void
+    public function __construct(LoggerInterface $logger)
     {
+        $this->logger = $logger;
+    }
 
+    public function addCandidate(array $submittedData, array $formData, ?array $files) : void
+    {
+        $this->logger->log(
+            LogLevel::INFO, "add candidates was called",
+            ['contao' => new ContaoContext(__METHOD__, TL_ACCESS)]
+        );
     }
 }

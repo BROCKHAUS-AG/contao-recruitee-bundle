@@ -18,26 +18,25 @@ namespace BrockhausAg\ContaoRecruiteeBundle\EventListener;
 
 use BrockhausAg\ContaoRecruiteeBundle\Logic\AddCandidatesLogic;
 use Contao\CoreBundle\ServiceAnnotation\Hook;
-use Contao\Form;
+use Psr\Log\LoggerInterface;
 
 class AddCandidatesListener
 {
     private AddCandidatesLogic $_addCandidatesLogic;
 
-    public function __construct()
+    public function __construct(LoggerInterface $logger)
     {
-        $this->_addCandidatesLogic = new AddCandidatesLogic();
+        $this->_addCandidatesLogic = new AddCandidatesLogic($logger);
     }
 
     /**
      * @Hook("processFormData")
      */
-    public function onAddCandidate(array $submittedData,
-                                   array $formData,
-                                   ?array $files,
-                                   array $labels,
-                                   Form $form)
+    public function onAddCandidate(array $submittedData, array $formData, ?array $files) : void
     {
-        $this->_addCandidatesLogic->addCandidate($submittedData, $formData, $files, $labels, $form);
+        if ($formData['formID'] == 'bewerbung')
+        {
+            $this->_addCandidatesLogic->addCandidate($submittedData, $formData, $files);
+        }
     }
 }

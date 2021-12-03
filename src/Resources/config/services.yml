@@ -15,6 +15,9 @@ services:
         calls:
             - [ setContainer, [ '@Psr\Container\ContainerInterface' ] ]
 
-    BrockhausAg\ContaoRecruiteeBundle\EventListener\AddCandidateListener:
+    BrockhausAg\ContaoRecruiteeBundle\EventListener\AddCandidatesListener:
+        arguments:
+            - '@logger'
+        public: true
         tags:
             - { name: contao.hook, hook: addCandidate, method: onAddCandidate }
