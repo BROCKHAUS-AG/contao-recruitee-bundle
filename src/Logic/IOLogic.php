@@ -21,6 +21,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
 DEFINE("PATH", "/html/contao/settings/brockhaus-ag/contao-recruitee-bundle/");
+DEFINE("JOBS_FILE", "%s/recruiteeJobs.json");
 
 class IOLogic {
 
@@ -56,10 +57,32 @@ class IOLogic {
         return $this->loadJsonFileAndDecode(PATH. "config.json");
     }
 
-    public function saveJsonJobsToFile(string $jobs)
+    private function createPathWithJobsFile() : string
     {
-        $fileHandle = fopen(PATH. 'recruiteeJobs.json', 'w');
-        fwrite($fileHandle, $jobs);
+        return sprintf(JOBS_FILE, PATH);
+    }
+
+    public function saveJobsToFile(array $jobs)
+    {
+        $array = array("timestamp" => time(), "jobs" => $jobs);
+        $jsonArray = json_encode($array);
+        $fileHandle = fopen($this->createPathWithJobsFile(), 'w');
+        fwrite($fileHandle, $jsonArray);
         fclose($fileHandle);
+    }
+
+    private function loadJobs() : array
+    {
+        return $this->loadJsonFileAndDecode($this->createPathWithJobsFile());
+    }
+
+    public function loadJsonJobsFromFile() : array
+    {
+        return $this->loadJobs()["jobs"];
+    }
+
+    public function getTimestampFromJsonJobsFile() : int
+    {
+        return $this->loadJobs()["timestamp"];
     }
 }

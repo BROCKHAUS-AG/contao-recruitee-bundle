@@ -16,6 +16,7 @@ declare(strict_types=1);
 
 namespace BrockhausAg\ContaoRecruiteeBundle\Logic;
 
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment as TwigEnvironment;
 
@@ -23,15 +24,28 @@ class LoadJobsLogic
 {
     private TwigEnvironment $twig;
 
-    public function __construct(TwigEnvironment $twig)
+    private IOLogic $_ioLogic;
+
+    public function __construct(TwigEnvironment $twig, LoggerInterface $logger)
     {
         $this->twig = $twig;
+
+        $this->_ioLogic = new IOLogic($logger);
     }
 
     public function loadJobs() : Response
     {
+        $jobs = $this->_ioLogic->loadJsonJobsFromFile();
+
+        $timestamp = $this->_ioLogic->getTimestampFromJsonJobsFile();
+        $date = date('d.m.Y H:i:s', $timestamp);
+
         return new Response($this->twig->render(
-            '@BrockhausAgContaoRecruitee/LoadJobs/jobs.html.twig', []
+            '@BrockhausAgContaoRecruitee/LoadJobs/loadJobs.html.twig',
+            [
+                "jobs" => $jobs,
+                "updatedAt" => $date
+            ]
         ));
     }
 }

@@ -114,8 +114,7 @@ class ReloadJobsLogic
 
     private function saveJobs(array $jobs)
     {
-        $jsonJobs = json_encode($jobs);
-        $this->_ioLogic->saveJsonJobsToFile($jsonJobs);
+        $this->_ioLogic->saveJobsToFile($jobs);
     }
 
     public function loadJobs() : Response
@@ -124,7 +123,7 @@ class ReloadJobsLogic
         $this->saveJobs($jobs);
 
         return new Response($this->twig->render(
-            '@BrockhausAgContaoRecruitee/LoadJobs/loadJobs.html.twig', [
+            '@BrockhausAgContaoRecruitee/ReloadJobs/reloadJobs.html.twig', [
                 "jobs" => $jobs
             ]
         ));

@@ -15,8 +15,10 @@ declare(strict_types=1);
 namespace BrockhausAg\ContaoRecruiteeBundle\Controller;
 
 use BrockhausAg\ContaoRecruiteeBundle\Logic\LoadJobsLogic;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
 use Twig\Environment as TwigEnvironment;
 
 /**
@@ -35,9 +37,10 @@ class LoadJobsController extends AbstractController
 {
     private LoadJobsLogic $_loadJobsLogic;
 
-    public function __construct(TwigEnvironment $twig)
+    public function __construct(TwigEnvironment $twig,
+                                LoggerInterface $logger)
     {
-        $this->_loadJobsLogic = new LoadJobsLogic($twig);
+        $this->_loadJobsLogic = new LoadJobsLogic($twig, $logger);
     }
 
     public function __invoke() : Response

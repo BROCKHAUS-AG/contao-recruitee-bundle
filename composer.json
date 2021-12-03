@@ -24,7 +24,8 @@
     "require": {
       "contao/core-bundle": "^4.9",
       "ext-gd": "*",
-      "ext-curl": "*"
+      "ext-curl": "*",
+      "ext-json": "*"
     },
     "require-dev": {
         "contao/manager-plugin": "^2.3",

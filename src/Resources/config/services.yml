@@ -1,12 +1,13 @@
 services:
-    BrockhausAg\ContaoRecruiteeBundle\Controller\JobsController:
+    BrockhausAg\ContaoRecruiteeBundle\Controller\LoadJobsController:
         arguments:
             - '@twig'
+            - '@logger'
         public: true
         calls:
             - [ setContainer, [ '@Psr\Container\ContainerInterface' ] ]
 
-    BrockhausAg\ContaoRecruiteeBundle\Controller\LoadJobsController:
+    BrockhausAg\ContaoRecruiteeBundle\Controller\ReloadJobsController:
         arguments:
             - '@twig'
             - '@logger'
