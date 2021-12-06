@@ -53,5 +53,4 @@ class PluginTest extends ContaoTestCase
         $this->assertSame(BrockhausAgContaoRecruiteeBundle::class, $bundles[0]->getName());
         $this->assertSame([ContaoCoreBundle::class], $bundles[0]->getLoadAfter());
     }
-
 }
