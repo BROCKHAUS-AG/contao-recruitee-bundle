@@ -43,7 +43,7 @@ class AddCandidatesLogic
         $this->sendToRecruitee($formData, $submittedData, $files);
         $this->logger->log(
             LogLevel::INFO, "add candidates was called",
-            ['contao' => new ContaoContext(__METHOD__, TL_ACCESS)]
+            ['contao' => new ContaoContext(__METHOD__, 'TL_ACCESS')]
         );
     }
 
