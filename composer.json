@@ -1,4 +1,5 @@
 {
+    "version": "1.0",
     "name": "brockhaus-ag/contao-recruitee-bundle",
     "description": "Contao Recuritee Bundle der BROCKHAUS AG",
     "keywords": [
@@ -41,6 +42,5 @@
     },
     "extra": {
         "contao-manager-plugin": "BrockhausAg\\ContaoRecruiteeBundle\\ContaoManager\\Plugin"
-    },
-    "version": "1.0"
+    }
 }
