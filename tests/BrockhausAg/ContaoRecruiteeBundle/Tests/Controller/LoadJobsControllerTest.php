@@ -14,7 +14,7 @@
 
 declare(strict_types=1);
 
-namespace BrockhausAg\ContaoRecruiteeBundle\Tests\ContaoManager;
+namespace BrockhausAg\ContaoRecruiteeBundle\Tests\Controller;
 
 use BrockhausAg\ContaoRecruiteeBundle\Controller\LoadJobsController;
 use Contao\TestCase\ContaoTestCase;
