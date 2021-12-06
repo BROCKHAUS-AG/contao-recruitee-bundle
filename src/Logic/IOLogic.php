@@ -35,7 +35,7 @@ class IOLogic {
     private function checkIfFileExists(string $file)
     {
         if (!file_exists($file)) {
-            $errorMessage = 'File: "'. $file. " could not be found. Please create it!";
+            $errorMessage = "File: \"". $file. "\" could not be found. Please create it!";
             $this->logger->log(
                 LogLevel::WARNING, $errorMessage,
                 ['contao' => new ContaoContext(__METHOD__, 'TL_ACCESS')]
