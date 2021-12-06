@@ -52,9 +52,14 @@ class IOLogic {
         return json_decode($fileContent, true);
     }
 
-    public function loadRecruiteeConfig() : array
+    private function loadRecruiteeConfig() : array
     {
         return $this->loadJsonFileAndDecode(PATH. "config.json");
+    }
+
+    public function loadRecruiteeConfigLocations() : array
+    {
+        return $this->loadRecruiteeConfig()["locations"];
     }
 
     private function createPathWithJobsFile() : string

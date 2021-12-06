@@ -32,7 +32,7 @@ class ReloadJobsLogic
     private IOLogic $_ioLogic;
     private HttpLogic $_httpLogic;
 
-    private $locations;
+    private array $locations;
 
     public function __construct(TwigEnvironment $twig,
                                 LoggerInterface $logger)
@@ -42,7 +42,7 @@ class ReloadJobsLogic
         $this->_ioLogic = new IOLogic($logger);
         $this->_httpLogic = new HttpLogic();
 
-        $this->locations = $this->_ioLogic->loadRecruiteeConfig()["locations"];
+        $this->locations = $this->_ioLogic->loadRecruiteeConfigLocations();
     }
 
     private function createJob(array $job, array $offer, string $category) : ?array

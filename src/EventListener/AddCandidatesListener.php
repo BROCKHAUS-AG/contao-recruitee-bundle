@@ -32,11 +32,11 @@ class AddCandidatesListener
     /**
      * @Hook("processFormData")
      */
-    public function onAddCandidate(array $submittedData, array $formData, ?array $files) : void
+    public function onAddCandidate(array $formData, array $submittedData, ?array $files) : void
     {
         if ($formData['formID'] == 'bewerbung')
         {
-            $this->_addCandidatesLogic->addCandidate($submittedData, $formData, $files);
+            $this->_addCandidatesLogic->addCandidate($formData, $submittedData, $files);
         }
     }
 }

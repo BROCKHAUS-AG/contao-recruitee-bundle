@@ -41,7 +41,6 @@ class Plugin implements BundlePluginInterface, RoutingPluginInterface
 
     /**
      * @return null|\Symfony\Component\Routing\RouteCollection
-     * @throws \Exception
      */
     public function getRouteCollection(LoaderResolverInterface $resolver, KernelInterface $kernel)
     {
