@@ -23,6 +23,9 @@ use Contao\CoreBundle\Monolog\ContaoContext;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
+DEFINE("RECRUITEE_URL", "https://api.recruitee.com/c/");
+DEFINE("RECURITEE_URL_COMPANY_ID", "%s");
+
 class AddCandidatesLogic
 {
     private LoggerInterface $logger;
@@ -39,7 +42,7 @@ class AddCandidatesLogic
 
     public function addCandidate(array $submittedData, array $formData, ?array $files) : void
     {
-        $this->sendToRecruitee($formData, $submittedData, $files);
+        $this->sendToRecruitee($submittedData, $formData, $files);
         $this->logger->log(
             LogLevel::INFO, "add candidates was called",
             ['contao' => new ContaoContext(__METHOD__, 'TL_ACCESS')]
@@ -104,7 +107,7 @@ class AddCandidatesLogic
     private function createNewCandidate(string $page, $offerId, string $salutation, string $title, string $firstName,
                                         string $lastName, string $email, string $message, string $github,
                                         string $linkedin, string $xing, $coverLetter, $curriculumVitae, $certificate,
-                                        $picture, $additionalSource) : void
+                                               $picture, $additionalSource) : void
     {
         $fields = $this->createFields($salutation, $title, $firstName, $lastName, $github, $linkedin, $xing);
 
@@ -119,6 +122,7 @@ class AddCandidatesLogic
                 break;
             }
         }
+
 
         $candidate = new Candidate(
             $firstName.' '.$lastName,
@@ -201,7 +205,7 @@ class AddCandidatesLogic
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://api.recruitee.com/c/". $companyId ."/candidates",
+            CURLOPT_URL => $this->createRecruiteeUrlWithCompanyId($companyId) ."/candidates",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -228,7 +232,7 @@ class AddCandidatesLogic
         $curlfile = new \CurlFile($tmpName, "application/pdf",  $name);
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://api.recruitee.com/c/" . $companyId ."/attachments",
+            CURLOPT_URL => $this->createRecruiteeUrlWithCompanyId($companyId) ."/attachments",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -258,7 +262,8 @@ class AddCandidatesLogic
     }
 
     private function setAttachmentAsCV($candidateId, $attachmentId, $token, $companyId){
-        $url = "https://api.recruitee.com/c/". $companyId ."/candidates/". $candidateId ."/set_as_cv/" . $attachmentId;
+        $url =$this->createRecruiteeUrlWithCompanyId($companyId) ."/candidates/". $candidateId ."/set_as_cv/" .
+            $attachmentId;
 
         $curl = curl_init();
         $header = array(
@@ -284,7 +289,8 @@ class AddCandidatesLogic
         $postData["gdpr_custom_expires_at"] = $expire_date;
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://api.recruitee.com/c/".$companyId."/gdpr/candidates/".$candidateId."/set_gdpr_custom_expires_at",
+            CURLOPT_URL => $this->createRecruiteeUrlWithCompanyId($companyId). "/gdpr/candidates/". $candidateId.
+                "/set_gdpr_custom_expires_at",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
