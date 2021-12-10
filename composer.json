@@ -1,7 +1,7 @@
 {
     "version": "1.0",
     "name": "brockhaus-ag/contao-recruitee-bundle",
-    "description": "Contao Recuritee Bundle der BROCKHAUS AG",
+    "description": "Mit dem Contao Recruitee Bundle der BROCKHAUS AG, können Sie Bewerbungen über ein Formular an Recruitee senden.",
     "keywords": [
         "contao",
         "bundle",
