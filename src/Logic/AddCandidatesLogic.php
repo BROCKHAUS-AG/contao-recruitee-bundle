@@ -41,10 +41,6 @@ class AddCandidatesLogic
     public function addCandidate(array $submittedData, array $formData, ?array $files) : void
     {
         $this->sendToRecruitee($submittedData, $formData, $files);
-        $this->logger->log(
-            LogLevel::INFO, "add candidates was called",
-            ['contao' => new ContaoContext(__METHOD__, 'TL_ACCESS')]
-        );
     }
 
     private function sendToRecruitee(array $submittedData, array $formData, ?array $files) : void
@@ -72,12 +68,6 @@ class AddCandidatesLogic
         $picture = $files["foto"];
 
         $additionalSource = $submittedData["bw_quelle"];
-
-        $this->logger->log(
-            LogLevel::INFO, "candidate: ". json_encode($submittedData),
-            ['contao' => new ContaoContext(__METHOD__, 'TL_ACCESS')]
-        );
-
 
         $this->createNewCandidate($page, $offerId, $salutation, $title, $firstName, $lastName, $email, $message,
             $github, $linkedin, $xing, $coverLetter, $curriculumVitae, $certificate, $picture, $additionalSource);
@@ -131,11 +121,6 @@ class AddCandidatesLogic
             array(0 => $email),
             array(),
             $message
-        );
-
-        $this->logger->log(
-            LogLevel::INFO, "candidate ". json_encode($candidate),
-            ['contao' => new ContaoContext(__METHOD__, 'TL_ACCESS')]
         );
 
         $candidatePost = new CandidatePost($candidate, array(0 => $offerId));
