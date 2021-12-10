@@ -5,8 +5,8 @@
     "keywords": [
         "contao",
         "bundle",
-        "tag 3",
-        "tag 4"
+        "recuitee",
+        "BROCKHAUS AG"
     ],
     "type": "contao-bundle",
     "license": "GPL-3.0-or-later",
@@ -15,6 +15,11 @@
             "name": "BROCKHAUS AG",
             "email": "info@brockhaus-ag.de",
             "homepage": "https://www.brockhaus-ag.de",
+            "role": "Developer"
+        },
+        {
+            "name": "Niklas Lurse",
+            "homepage": "https://github.com/INoTime",
             "role": "Developer"
         }
     ],
