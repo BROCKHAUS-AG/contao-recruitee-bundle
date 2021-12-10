@@ -34,16 +34,16 @@ use Psr\Log\LoggerInterface;
  */
 class ReloadJobsController extends AbstractController
 {
-    private $_loadJobsLogic;
+    private ReloadJobsLogic $_reloadJobsLogic;
 
     public function __construct(TwigEnvironment $twig,
                                 LoggerInterface $logger)
     {
-        $this->_loadJobsLogic = new ReloadJobsLogic($twig, $logger);
+        $this->_reloadJobsLogic = new ReloadJobsLogic($twig, $logger);
     }
 
     public function __invoke() : Response
     {
-        return $this->_loadJobsLogic->loadJobs();
+        return $this->_reloadJobsLogic->loadJobs();
     }
 }

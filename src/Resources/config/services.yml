@@ -9,7 +9,6 @@ services:
 
     BrockhausAg\ContaoRecruiteeBundle\Controller\LoadJsonJobsController:
         arguments:
-            - '@twig'
             - '@logger'
         public: true
         calls:

@@ -21,18 +21,19 @@ use Contao\CoreBundle\Monolog\ContaoContext;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
-DEFINE("RECRUITEE_URL", "https://api.recruitee.com/c/");
-DEFINE("RECURITEE_URL_COMPANY_ID", "%s");
-
 class AddCandidatesLogic
 {
     private LoggerInterface $logger;
+
+    private HttpLogic $_httpLogic;
 
     private array $locations;
 
     public function __construct(LoggerInterface $logger)
     {
         $this->logger = $logger;
+        $this->_httpLogic = new HttpLogic();
+
 
         $ioLogic = new IOLogic($logger);
         $this->locations = $ioLogic->loadRecruiteeConfigLocations();
@@ -41,11 +42,12 @@ class AddCandidatesLogic
     public function addCandidate(array $submittedData, array $formData, ?array $files) : void
     {
         $this->sendToRecruitee($submittedData, $formData, $files);
+        $this->createResponse();
     }
 
     private function sendToRecruitee(array $submittedData, array $formData, ?array $files) : void
     {
-        $page = $this->getPageNameByAlias($formData["alias"]);
+        $location = $this->getLocationByAlias($formData["alias"]);
 
         $offerId = $submittedData["jobID"];
 
@@ -62,29 +64,22 @@ class AddCandidatesLogic
         $linkedin = $submittedData["linkedin"];
         $xing = $submittedData["xing"];
 
-        $coverLetter = $files["anschreiben"];
-        $curriculumVitae = $files["lebenslauf"];
-        $certificate = $files["zeugnisse"];
-        $picture = $files["foto"];
+        $coverLetter = $files["anschreiben"] ?? [];
+        $curriculumVitae = $files["lebenslauf"] ?? [];
+        $certificate = $files["zeugnisse"] ?? [];
+        $picture = $files["foto"] ?? [];
 
         $additionalSource = $submittedData["bw_quelle"];
 
-        $this->createNewCandidate($page, $offerId, $salutation, $title, $firstName, $lastName, $email, $message,
-            $github, $linkedin, $xing, $coverLetter, $curriculumVitae, $certificate, $picture, $additionalSource);
-
-        $response_code = 200;
-        $response_message = '<h1 style="text-align: center;" class="ok">Ihre Bewerbung wurde versendet.</h1>';
-
-
-        $_SESSION['coveto_response_code'] = $response_code;
-        $_SESSION['coveto_response_message'] = $response_message;
+        $this->createNewCandidate($location, $offerId, $salutation, $title, $firstName, $lastName, $email, $message,
+            $github, $linkedin, $xing, $additionalSource, $coverLetter, $curriculumVitae, $certificate, $picture);
     }
 
-    private function getPageNameByAlias(string $alias) : string
+    private function getLocationByAlias(string $alias) : array
     {
         foreach ($this->locations as $location) {
             if (strcmp("bewerbung-". $location["category"], $alias) == 0) {
-                return $location["name"];
+                return $location;
             }
         }
         $this->logger->log(
@@ -95,24 +90,17 @@ class AddCandidatesLogic
         exit();
     }
 
-    private function createNewCandidate(string $page, $offerId, string $salutation, ?string $title, string $firstName,
-                                        string $lastName, string $email, ?string $message, ?string $github,
-                                        ?string $linkedin, ?string $xing, $coverLetter, $curriculumVitae, $certificate,
-                                               $picture, $additionalSource) : void
+    private function createNewCandidate(array $location, $offerId, string $salutation, ?string $title,
+                                        string $firstName, string $lastName, string $email, ?string $message,
+                                        ?string $github, ?string $linkedin, ?string $xing, ?string $additionalSource,
+                                        array $coverLetter = [], array $curriculumVitae = [], array $certificate = [],
+                                        array $picture = []) : void
     {
         $fields = $this->createFields($salutation, $title, $firstName, $lastName, $github, $linkedin, $xing);
 
-        $token = "";
-        $companyId = "";
-        $category = "";
-        foreach ($this->locations as $location) {
-            if (strcmp($location["name"], $page) == 0) {
-                $token = $location["bearerToken"];
-                $companyId = $location["companyIdentifier"];
-                $category = $location["category"];
-                break;
-            }
-        }
+        $token = $location["bearerToken"];
+        $companyId = $location["companyIdentifier"];
+        $category = $location["category"];
 
         $candidate = new Candidate(
             $firstName.' '.$lastName,
@@ -124,38 +112,15 @@ class AddCandidatesLogic
         );
 
         $candidatePost = new CandidatePost($candidate, array(0 => $offerId));
-        $result = $this->createCandidatesRequest($candidatePost, $token, $companyId);
+        $candidateResponse= $this->_httpLogic->createCandidatesRequest($candidatePost, $token, $companyId);
 
-        $json = json_decode($result, true);
-        $candidateId = $json["candidate"]["id"];
+        $candidateResult = json_decode($candidateResponse, true);
+        $candidateId = $candidateResult["candidate"]["id"];
 
-        if($coverLetter)
-        {
-            $messageUploaded = $this->uploadFileForCandidate($coverLetter["tmp_name"], $coverLetter["name"],
-                $candidateId, $token, $companyId);
-        }
-        if($curriculumVitae)
-        {
-            $cvUploaded = $this->uploadFileForCandidate($curriculumVitae["tmp_name"], $curriculumVitae["name"],
-                $candidateId, $token, $companyId);
-            $cvJson = json_decode($cvUploaded, true);
-            $cvId = $cvJson["attachment"]["id"];
+        $this->sendAttachments($candidateId, $token, $companyId, $coverLetter, $curriculumVitae, $certificate,
+            $picture);
 
-            $this->setAttachmentAsCV($candidateId, $cvId, $token, $companyId);
-        }
-        if($certificate)
-        {
-            $certificateUploaded = $this->uploadFileForCandidate($certificate["tmp_name"], $certificate["name"],
-                $candidateId, $token, $companyId);
-        }
-        if($picture)
-        {
-            $profilePicUploaded = $this->uploadFileForCandidate($picture["tmp_name"], $picture["name"],
-                $candidateId, $token, $companyId);
-        }
-
-
-        $this->setGDPR($candidateId, $companyId, $token);
+        $this->_httpLogic->setGDPR($candidateId, $companyId, $token);
     }
 
     private function createFields(string $salutation, ?string $title, string $firstName, string $lastName,
@@ -180,118 +145,44 @@ class AddCandidatesLogic
         return $fields;
     }
 
-    private function createRecruiteeUrlWithCompanyId(string $companyId) : string
+    private function sendAttachments(int $candidateId, string $token, string $companyId, array $coverLetter = [],
+                                     array $curriculumVitae = [], array $certificate = [], array $picture = []) : void
     {
-        return RECRUITEE_URL. sprintf(RECURITEE_URL_COMPANY_ID, $companyId);
-    }
-
-    private function createCandidatesRequest($candidatePostData, $token, $companyId)
-    {
-        $curl = curl_init();
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $this->createRecruiteeUrlWithCompanyId($companyId) ."/candidates",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS =>json_encode($candidatePostData),
-            CURLOPT_HTTPHEADER => array(
-                "Authorization: Bearer " . $token,
-                "Content-Type: application/json"
-            ),
-        ));
-
-        $response = curl_exec($curl);
-
-        curl_close($curl);
-        return $response;
-    }
-
-    private function uploadFileForCandidate($tmpName, $name, $candidateId, $token, $companyId){
-        $curl = curl_init();
-
-        $curlfile = new \CurlFile($tmpName, "application/pdf",  $name);
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $this->createRecruiteeUrlWithCompanyId($companyId) ."/attachments",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POST => 1,
-            CURLOPT_POSTFIELDS => array('attachment[file]'=> $curlfile,'attachment[candidate_id]' => $candidateId),
-            CURLOPT_SAFE_UPLOAD => true,
-            CURLOPT_HTTPHEADER => array(
-                "Authorization: Bearer " . $token,
-                "Content-Type: multipart/form-data"
-            ),
-        ));
-
-        $response = curl_exec($curl);
-        $err = curl_error($curl);
-
-        curl_close($curl);
-
-        if ($err) {
-            echo "cURL Error #:" . $err;
+        if($coverLetter)
+        {
+            $this->_httpLogic->uploadFileForCandidate($coverLetter["tmp_name"], $coverLetter["name"],
+                $candidateId, $token, $companyId);
         }
-
-        return $response;
+        if($curriculumVitae){
+            $this->uploadFileAndAttachCv($candidateId, $curriculumVitae , $token, $companyId);
+        }
+        if($certificate)
+        {
+            $this->_httpLogic->uploadFileForCandidate($certificate["tmp_name"], $certificate["name"],
+                $candidateId, $token, $companyId);
+        }
+        if($picture)
+        {
+            $this->_httpLogic->uploadFileForCandidate($picture["tmp_name"], $picture["name"],
+                $candidateId, $token, $companyId);
+        }
     }
 
-    private function setAttachmentAsCV($candidateId, $attachmentId, $token, $companyId){
-        $url =$this->createRecruiteeUrlWithCompanyId($companyId) ."/candidates/". $candidateId ."/set_as_cv/" .
-            $attachmentId;
+    private function uploadFileAndAttachCv($candidateId, $curriculumVitae , string $token, string $companyId) : void
+    {
+        $responseJson = $this->_httpLogic->uploadFileForCandidate($curriculumVitae["tmp_name"],
+            $curriculumVitae["name"], $candidateId, $token, $companyId);
 
-        $curl = curl_init();
-        $header = array(
-            "Authorization: Bearer " . $token,
-            "Content-Type: application/json"
-        );
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'PATCH');
-        curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
-
-        $response = curl_exec($curl);
-        curl_close($curl);
+        $response = json_decode($responseJson, true);
+        $cvId = $response["attachment"]["id"];
+        $this->_httpLogic->setAttachmentAsCV($candidateId, $cvId, $token, $companyId,);
     }
 
-    private function setGDPR($candidateId, $companyId, $token){
-        $curl = curl_init();
-        $defaultTimeZone='UTC';
-        date_default_timezone_set($defaultTimeZone);
-        $expire_date = date("Y-m-d\Th:i:00.000000\Z", strtotime("+6 months"));
-
-        $postData = array();
-        $postData["gdpr_custom_expires_at"] = $expire_date;
-
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => $this->createRecruiteeUrlWithCompanyId($companyId). "/gdpr/candidates/". $candidateId.
-                "/set_gdpr_custom_expires_at",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS =>json_encode($postData),
-            CURLOPT_HTTPHEADER => array(
-                "Authorization: Bearer " . $token,
-                "Content-Type: application/json"
-            ),
-        ));
-
-        $response = curl_exec($curl);
-
-        curl_close($curl);
+    private function createResponse() : void
+    {
+        $response_code = 200;
+        $response_message = '<h1 style="text-align: center;" class="ok">Ihre Bewerbung wurde versendet.</h1>';
+        $_SESSION['recruitee_response_code'] = $response_code;
+        $_SESSION['recruitee_response_message'] = $response_message;
     }
 }
