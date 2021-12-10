@@ -24,10 +24,10 @@ class Candidate implements JsonSerializable {
     public array $custom_fields;
     public array $emails;
     public array $phones;
-    public string $cover_letter;
+    public ?string $cover_letter;
 
     function __construct(string $name, array $sources = [], array $customFields = [], $emails,
-                         array $phones = array(), $coverLetter)
+                         array $phones = array(), ?string $coverLetter)
     {
         $this->name = $name;
         $this->sources = $sources;

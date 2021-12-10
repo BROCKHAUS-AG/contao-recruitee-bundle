@@ -60,7 +60,10 @@ class AddCandidatesLogic
         $firstName = $submittedData["bw_vorname"];
         $lastName = $submittedData["bw_name"];
         $email = $submittedData["bw_email"];
-        $message = $submittedData["profil_sonstiges"];
+        $message = null;
+        if ($submittedData["profil_sonstiges"]) {
+            $message = $submittedData["profil_sonstiges"];
+        }
         $github = $submittedData["github"];
         $linkedin = $submittedData["linkedin"];
         $xing = $submittedData["xing"];
@@ -104,9 +107,9 @@ class AddCandidatesLogic
         exit();
     }
 
-    private function createNewCandidate(string $page, $offerId, string $salutation, string $title, string $firstName,
-                                        string $lastName, string $email, string $message, string $github,
-                                        string $linkedin, string $xing, $coverLetter, $curriculumVitae, $certificate,
+    private function createNewCandidate(string $page, $offerId, string $salutation, ?string $title, string $firstName,
+                                        string $lastName, string $email, ?string $message, ?string $github,
+                                        ?string $linkedin, ?string $xing, $coverLetter, $curriculumVitae, $certificate,
                                                $picture, $additionalSource) : void
     {
         $fields = $this->createFields($salutation, $title, $firstName, $lastName, $github, $linkedin, $xing);
@@ -122,7 +125,6 @@ class AddCandidatesLogic
                 break;
             }
         }
-
 
         $candidate = new Candidate(
             $firstName.' '.$lastName,
@@ -173,8 +175,8 @@ class AddCandidatesLogic
         $this->setGDPR($candidateId, $companyId, $token);
     }
 
-    private function createFields(string $salutation, string $title, string $firstName, string $lastName,
-                                  string $github, string $linkedin, string $xing) : array
+    private function createFields(string $salutation, ?string $title, string $firstName, string $lastName,
+                                  ?string $github, ?string $linkedin, ?string $xing) : array
     {
         $fields = array();
         array_push($fields, new Field("Anrede", array($salutation)));
@@ -309,6 +311,4 @@ class AddCandidatesLogic
 
         curl_close($curl);
     }
-
-
 }
