@@ -17,8 +17,10 @@ declare(strict_types=1);
 namespace BrockhausAg\ContaoRecruiteeBundle\EventListener;
 
 use BrockhausAg\ContaoRecruiteeBundle\Logic\AddCandidatesLogic;
+use Contao\CoreBundle\Monolog\ContaoContext;
 use Contao\CoreBundle\ServiceAnnotation\Hook;
 use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
 
 class AddCandidatesListener
 {
@@ -32,11 +34,11 @@ class AddCandidatesListener
     /**
      * @Hook("processFormData")
      */
-    public function onAddCandidate(array $formData, array $submittedData, ?array $files) : void
+    public function onAddCandidate(array $submittedData, array $formData, ?array $files) : void
     {
         if ($formData['formID'] == 'bewerbung')
         {
-            $this->_addCandidatesLogic->addCandidate($formData, $submittedData, $files);
+            $this->_addCandidatesLogic->addCandidate($submittedData, $formData, $files);
         }
     }
 }

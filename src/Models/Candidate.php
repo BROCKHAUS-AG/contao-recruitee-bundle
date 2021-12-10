@@ -22,18 +22,18 @@ class Candidate implements JsonSerializable {
     public string $name;
     public array $sources;
     public array $custom_fields;
-    public $emails;
+    public array $emails;
     public array $phones;
-    public array $cover_letter;
+    public string $cover_letter;
 
     function __construct(string $name, array $sources = [], array $customFields = [], $emails,
-                         array $telephone = array(), $coverLetter)
+                         array $phones = array(), $coverLetter)
     {
         $this->name = $name;
         $this->sources = $sources;
         $this->custom_fields = $customFields;
         $this->emails = $emails;
-        $this->phones = $telephone;
+        $this->phones = $phones;
         $this->cover_letter = $coverLetter;
     }
 

@@ -16,7 +16,6 @@ declare(strict_types=1);
 
 namespace BrockhausAg\ContaoRecruiteeBundle\Logic;
 
-
 use BrockhausAg\ContaoRecruiteeBundle\Models\Candidate;
 use BrockhausAg\ContaoRecruiteeBundle\Models\CandidatePost;
 use BrockhausAg\ContaoRecruiteeBundle\Models\Field;
@@ -38,7 +37,7 @@ class AddCandidatesLogic
         $this->locations = $ioLogic->loadRecruiteeConfigLocations();
     }
 
-    public function addCandidate(array $formData, array $submittedData, ?array $files) : void
+    public function addCandidate(array $submittedData, array $formData, ?array $files) : void
     {
         $this->sendToRecruitee($formData, $submittedData, $files);
         $this->logger->log(
@@ -47,28 +46,33 @@ class AddCandidatesLogic
         );
     }
 
-    private function sendToRecruitee(array $formData, array $submittedData, ?array $files) : void
+    private function sendToRecruitee(array $submittedData, array $formData, ?array $files) : void
     {
-        $page = $this->getPageNameByAlias($submittedData["alias"]);
+        $page = $this->getPageNameByAlias($formData["alias"]);
 
-        $offerId = $formData["jobID"];
+        $offerId = $submittedData["jobID"];
 
-        $salutation = $formData["bw_anrede"];
-        $title = $formData["bw_titel"];
-        $firstName = $formData["bw_vorname"];
-        $lastName = $formData["bw_name"];
-        $email = $formData["bw_email"];
-        $message = $formData["profil_sonstiges"];
-        $github = $formData["github"];
-        $linkedin = $formData["linkedin"];
-        $xing = $formData["xing"];
+        $salutation = $submittedData["bw_anrede"];
+        $title = $submittedData["bw_titel"];
+        $firstName = $submittedData["bw_vorname"];
+        $lastName = $submittedData["bw_name"];
+        $email = $submittedData["bw_email"];
+        $message = $submittedData["profil_sonstiges"];
+        $github = $submittedData["github"];
+        $linkedin = $submittedData["linkedin"];
+        $xing = $submittedData["xing"];
 
         $coverLetter = $files["anschreiben"];
         $curriculumVitae = $files["lebenslauf"];
         $certificate = $files["zeugnisse"];
         $picture = $files["foto"];
 
-        $additionalSource = $formData["bw_quelle"];
+        $additionalSource = $submittedData["bw_quelle"];
+
+        $this->logger->log(
+            LogLevel::INFO, "candidate: ". json_encode($submittedData),
+            ['contao' => new ContaoContext(__METHOD__, 'TL_ACCESS')]
+        );
 
 
         $this->createNewCandidate($page, $offerId, $salutation, $title, $firstName, $lastName, $email, $message,
@@ -85,12 +89,12 @@ class AddCandidatesLogic
     private function getPageNameByAlias(string $alias) : string
     {
         foreach ($this->locations as $location) {
-            if (strcmp("bewerbung-". $location["name"], $alias) == 0) {
+            if (strcmp("bewerbung-". $location["category"], $alias) == 0) {
                 return $location["name"];
             }
         }
         $this->logger->log(
-            LogLevel::WARNING, "Location with name ". $location["name"]. " could not be found",
+            LogLevel::WARNING, "Location with name ". $alias. " could not be found",
             ['contao' => new ContaoContext(__METHOD__, 'TL_ACCESS')]
         );
         echo "Failed -> you can find error log in the Contao Backend";
@@ -106,24 +110,32 @@ class AddCandidatesLogic
 
         $token = "";
         $companyId = "";
+        $category = "";
         foreach ($this->locations as $location) {
             if (strcmp($location["name"], $page) == 0) {
                 $token = $location["bearerToken"];
                 $companyId = $location["companyIdentifier"];
+                $category = $location["category"];
                 break;
             }
         }
 
         $candidate = new Candidate(
             $firstName.' '.$lastName,
+            array($category."-Website", $additionalSource),
+            $fields,
             array(0 => $email),
             array(),
-            $message,
-            array($page."-Website", $additionalSource),
-            $fields);
+            $message
+        );
+
+        $this->logger->log(
+            LogLevel::INFO, "candidate ". json_encode($candidate),
+            ['contao' => new ContaoContext(__METHOD__, 'TL_ACCESS')]
+        );
 
         $candidatePost = new CandidatePost($candidate, array(0 => $offerId));
-        $result = $this->createApplicantRequest($candidatePost, $token, $companyId);
+        $result = $this->createCandidatesRequest($candidatePost, $token, $companyId);
 
         $json = json_decode($result, true);
         $candidateId = $json["candidate"]["id"];
@@ -179,7 +191,12 @@ class AddCandidatesLogic
         return $fields;
     }
 
-    private function createApplicantRequest($candidatePostData, $token, $companyId)
+    private function createRecruiteeUrlWithCompanyId(string $companyId) : string
+    {
+        return RECRUITEE_URL. sprintf(RECURITEE_URL_COMPANY_ID, $companyId);
+    }
+
+    private function createCandidatesRequest($candidatePostData, $token, $companyId)
     {
         $curl = curl_init();
 
