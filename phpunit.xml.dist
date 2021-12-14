@@ -11,7 +11,7 @@
     </php>
 
     <testsuites>
-        <testsuite name="contao-microsoft-sso-bundle>">
+        <testsuite name="contao-recruitee-bundle>">
             <directory>./tests</directory>
         </testsuite>
     </testsuites>
