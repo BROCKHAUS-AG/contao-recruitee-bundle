@@ -30,7 +30,11 @@ class LoadJsonJobsLogic
     public function loadJobs() : Response
     {
         $jobs = $this->_ioLogic->loadJsonJobsFromFile();
-        $jsonJobs = json_encode($jobs[0]);
+        $array = array();
+        foreach ($jobs as $job) {
+            $array = array_merge($array, $job);
+        }
+        $jsonJobs = json_encode($array);
 
         return new Response($jsonJobs, 200, array('Content-Type'=>'application/json'));
     }
