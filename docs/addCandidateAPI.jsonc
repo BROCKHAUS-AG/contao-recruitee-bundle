@@ -1,0 +1,42 @@
+{
+    // Formular Alias: bewerbung-experts
+    "alias": "",
+    // die Job Id, auf den sich der Bewerber bewirbt
+    "jobID": "",
+    // Anrede: Herr, Frau, Divers
+    "bw_anrede": "",
+    // Titel: Dr., Dipl., etc. 
+    "bw_titel": "",
+    // Vorname: Max
+    "bw_vorname": "",
+    // Nachname: Mustermann
+    "bw_name": "",
+    // E-Mail: max.mustermann@brockhaus-ag.de
+    "bw_email": "",
+    // 
+    "profil_sonstiges": "",
+    // https://github.com/BROCKHAUS-AG
+    "github": "",
+    // https://de.linkedin.com/company/brockhaus-ag
+    "linkedin": "",
+    // https://www.xing.com/pages/brockhausag
+    "xing": "",
+    //
+    "bw_quelle": "",
+    // Bewerbungsanschreiben
+    "anschreiben": [
+
+    ],
+    // Lebenslauf
+    "lebenslauf": [
+
+    ],
+    // Zeugnisse
+    "zeugnisse": [
+
+    ],
+    // Foto von Bewerber
+    "foto": [
+
+    ]
+}
