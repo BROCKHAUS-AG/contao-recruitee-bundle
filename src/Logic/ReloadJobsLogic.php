@@ -53,6 +53,7 @@ class ReloadJobsLogic
                 'stellenname' => $job['title'],
                 'id' => $job['id'],
                 'einsatzort' => $job['city'],
+                'tags' => $job['offer_tags'],
                 '_url' => $job['url'],
                 'kategorie'=> $category,
                 'bildurl' => $job["department"],
