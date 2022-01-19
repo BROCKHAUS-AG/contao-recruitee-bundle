@@ -83,7 +83,7 @@ unter dem Punkt "[Backend-API -> Jobs laden](#jobs-laden)".
 
 ## **Backend-API**
 #### **Bewerbungskandidaten senden:**
-```json lines
+```json5
 {
     // Formular Alias: bewerbung-experts
     "alias": "",
@@ -128,7 +128,7 @@ unter dem Punkt "[Backend-API -> Jobs laden](#jobs-laden)".
 }
 ```
 #### **Jobs laden:**
-```json lines
+```json5
 [
     {
         // Stellenname des Jobs
