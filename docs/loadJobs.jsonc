@@ -1,27 +1,29 @@
 [
-    {
-        // Stellenname des Jobs
-        "stellenname": "",
-        // Id aus recruitee
-        "id": "",
-        // Einsatzort (Stadt)
-        "einsatzort": "",
-        // Job Url zu recruitee
-        "_url": "",
-        // Kategorie (Alias für unterschiedliche Seiten)
-        "kategorie": "",
-        // Bild Alias
-        "bildUrl": "",
-        // Stellenbeschreibung mit HTML
-        "stellenbeschreibung": ""
-    },
-    {
-        "stellenname": "",
-        "id": "",
-        "einsatzort": "",
-        "_url": "",
-        "kategorie": "",
-        "bildUrl": "",
-        "stellenbeschreibung": ""
-    }
+     {
+      // Stellenname des Jobs
+      "stellenname": "",
+      // Id aus recruitee
+      "id": "",
+      // Einsatzort (Stadt)
+      "einsatzort": "",
+      // Job Url zu recruitee
+      "_url": "",
+      // Kategorie (Alias für unterschiedliche Seiten)
+      "kategorie": "",
+      // Bild Alias
+      "bildUrl": "",
+      // Stellenbeschreibung mit HTML
+      "stellenbeschreibung": "",
+      "tags": [],
+   },
+   {
+      "stellenname": "",
+      "id": "",
+      "einsatzort": "",
+      "_url": "",
+      "kategorie": "",
+      "bildUrl": "",
+      "stellenbeschreibung": "",
+      "tags": [],
+   }
 ]
