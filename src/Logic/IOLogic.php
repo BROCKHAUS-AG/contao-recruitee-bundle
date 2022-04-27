@@ -54,7 +54,7 @@ class IOLogic {
 
     private function loadRecruiteeConfig() : array
     {
-        $path = $this->createPath(). "config.json";
+        $path = $this->createPath(). "/config.json";
         return $this->loadJsonFileAndDecode($path);
     }
 
