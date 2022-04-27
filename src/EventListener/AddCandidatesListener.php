@@ -24,9 +24,9 @@ class AddCandidatesListener
 {
     private AddCandidatesLogic $_addCandidatesLogic;
 
-    public function __construct(LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, string $path)
     {
-        $this->_addCandidatesLogic = new AddCandidatesLogic($logger);
+        $this->_addCandidatesLogic = new AddCandidatesLogic($logger, $path);
     }
 
     /**

@@ -22,9 +22,9 @@ class LoadJsonJobsLogic
 {
     private IOLogic $_ioLogic;
 
-    public function __construct(LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, string $path)
     {
-        $this->_ioLogic = new IOLogic($logger);
+        $this->_ioLogic = new IOLogic($logger, $path);
     }
 
     public function loadJobs() : Response

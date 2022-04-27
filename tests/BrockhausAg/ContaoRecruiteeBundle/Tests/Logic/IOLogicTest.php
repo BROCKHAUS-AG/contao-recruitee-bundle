@@ -36,6 +36,16 @@ class IOLogicTest extends ContaoTestCase
     public function testInstantiation(): void
     {
         $this->assertInstanceOf(IOLogic::class,
-            new IOLogic($this->loggerMock));
+            new IOLogic($this->loggerMock, "path"));
+    }
+
+    public function testCreatePathWithJobsFile(): void
+    {
+        $expected = "path/settings/brockhaus-ag/contao-recruitee-bundle/recruiteeJobs.json";
+        $ioLogic = new IOLogic($this->loggerMock, "path");
+
+        $actual = $ioLogic->createPathWithJobsFile();
+
+        self::assertSame($expected, $actual);
     }
 }

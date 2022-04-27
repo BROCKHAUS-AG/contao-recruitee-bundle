@@ -24,11 +24,11 @@ class LoadJobsLogic
 
     private IOLogic $_ioLogic;
 
-    public function __construct(TwigEnvironment $twig, LoggerInterface $logger)
+    public function __construct(TwigEnvironment $twig, LoggerInterface $logger, string $path)
     {
         $this->twig = $twig;
 
-        $this->_ioLogic = new IOLogic($logger);
+        $this->_ioLogic = new IOLogic($logger, $path);
     }
 
     public function loadJobs() : Response

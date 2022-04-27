@@ -18,16 +18,18 @@ use Contao\CoreBundle\Monolog\ContaoContext;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
-DEFINE("PATH", "/html/contao/settings/brockhaus-ag/contao-recruitee-bundle/");
+DEFINE("PATH", "%s/settings/brockhaus-ag/contao-recruitee-bundle");
 DEFINE("JOBS_FILE", "%s/recruiteeJobs.json");
 
 class IOLogic {
 
     private LoggerInterface $logger;
+    private string $path;
 
-    public function __construct(LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, string $path)
     {
         $this->logger = $logger;
+        $this->path = $path;
     }
 
     private function checkIfFileExists(string $file)
@@ -52,7 +54,8 @@ class IOLogic {
 
     private function loadRecruiteeConfig() : array
     {
-        return $this->loadJsonFileAndDecode(PATH. "config.json");
+        $path = $this->createPath(). "config.json";
+        return $this->loadJsonFileAndDecode($path);
     }
 
     public function loadRecruiteeConfigLocations() : array
@@ -60,9 +63,15 @@ class IOLogic {
         return $this->loadRecruiteeConfig()["locations"];
     }
 
-    private function createPathWithJobsFile() : string
+    public function createPathWithJobsFile() : string
     {
-        return sprintf(JOBS_FILE, PATH);
+        $path = $this->createPath();
+        return sprintf(JOBS_FILE, $path);
+    }
+
+    private function createPath(): string
+    {
+        return sprintf(PATH, $this->path);
     }
 
     public function saveJobsToFile(array $jobs)

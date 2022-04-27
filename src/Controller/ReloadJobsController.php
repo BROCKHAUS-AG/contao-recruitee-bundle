@@ -36,10 +36,9 @@ class ReloadJobsController extends AbstractController
 {
     private ReloadJobsLogic $_reloadJobsLogic;
 
-    public function __construct(TwigEnvironment $twig,
-                                LoggerInterface $logger)
+    public function __construct(TwigEnvironment $twig, LoggerInterface $logger, string $path)
     {
-        $this->_reloadJobsLogic = new ReloadJobsLogic($twig, $logger);
+        $this->_reloadJobsLogic = new ReloadJobsLogic($twig, $logger, $path);
     }
 
     public function __invoke() : Response

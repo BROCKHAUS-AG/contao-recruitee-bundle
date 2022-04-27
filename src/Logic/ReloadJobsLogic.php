@@ -32,12 +32,11 @@ class ReloadJobsLogic
 
     private array $locations;
 
-    public function __construct(TwigEnvironment $twig,
-                                LoggerInterface $logger)
+    public function __construct(TwigEnvironment $twig, LoggerInterface $logger, string $path)
     {
         $this->twig = $twig;
 
-        $this->_ioLogic = new IOLogic($logger);
+        $this->_ioLogic = new IOLogic($logger, $path);
         $this->_httpLogic = new HttpLogic();
 
         $this->locations = $this->_ioLogic->loadRecruiteeConfigLocations();

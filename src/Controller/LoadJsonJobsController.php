@@ -36,9 +36,9 @@ class LoadJsonJobsController extends AbstractController
 {
     private LoadJsonJobsLogic $_loadJsonJobsLogic;
 
-    public function __construct(LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, string $path)
     {
-        $this->_loadJsonJobsLogic = new LoadJsonJobsLogic($logger);
+        $this->_loadJsonJobsLogic = new LoadJsonJobsLogic($logger, $path);
     }
 
     public function __invoke() : Response

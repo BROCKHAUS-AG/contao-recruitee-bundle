@@ -29,13 +29,13 @@ class AddCandidatesLogic
 
     private array $locations;
 
-    public function __construct(LoggerInterface $logger)
+    public function __construct(LoggerInterface $logger, string $path)
     {
         $this->logger = $logger;
         $this->_httpLogic = new HttpLogic();
 
 
-        $ioLogic = new IOLogic($logger);
+        $ioLogic = new IOLogic($logger, $path);
         $this->locations = $ioLogic->loadRecruiteeConfigLocations();
     }
 
