@@ -32,3 +32,10 @@ services:
         public: true
         tags:
             - { name: contao.hook, hook: addCandidate, method: onAddCandidate }
+
+    BrockhausAg\ContaoRecruiteeBundle\Controller\FrontendModule\SendApplicationController:
+        tags:
+            - name: contao.frontend_module
+              category: miscellaneous
+              method: getResponse
+              #template: rsce_contact-form-with-application
