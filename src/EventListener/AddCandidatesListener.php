@@ -24,11 +24,22 @@ class AddCandidatesListener
 {
     private AddCandidatesLogic $_addCandidatesLogic;
 
-    public function __construct(LoggerInterface $logger, string $path)
+    /*public function __construct(LoggerInterface $logger, string $path)
     {
         $this->_addCandidatesLogic = new AddCandidatesLogic($logger, $path);
-    }
+    }*/
 
+    public function __construct()
+    {
+
+    }
+    public function testFunction()
+    {
+
+        file_put_contents("/var/www/html/contao/testing/test.xml", "hi");
+        file_put_contents("/var/www/html/contao/testing/test2.xml", "hi2");
+        file_put_contents("/var/www/html/contao/testing/test3.xml", "hi3");
+    }
     /**
      * @Hook("processFormData")
      */

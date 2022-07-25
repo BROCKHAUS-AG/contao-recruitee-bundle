@@ -38,4 +38,4 @@ services:
             - name: contao.frontend_module
               category: miscellaneous
               method: getResponse
-              #template: rsce_contact-form-with-application
+              template: templates/contact-form.php
