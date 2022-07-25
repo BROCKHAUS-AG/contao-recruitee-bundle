@@ -39,15 +39,17 @@ class AddCandidatesListener
         file_put_contents("/var/www/html/contao/testing/test.xml", "hi");
         file_put_contents("/var/www/html/contao/testing/test2.xml", "hi2");
         file_put_contents("/var/www/html/contao/testing/test3.xml", "hi3");
+
     }
+
     /**
      * @Hook("processFormData")
      */
     public function onAddCandidate(array $submittedData, array $formData, ?array $files) : void
     {
-        if ($formData['formID'] == 'bewerbung')
+      /*  if ($formData['formID'] == 'bewerbung')
         {
             $this->_addCandidatesLogic->addCandidate($submittedData, $formData, $files);
-        }
+        }*/
     }
 }

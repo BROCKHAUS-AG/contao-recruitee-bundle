@@ -36,5 +36,6 @@ class BrockhausAgContaoRecruiteeExtension extends Extension
         );
 
         $loader->load('services.yml');
+        $loader->load('routes.yml');
     }
 }

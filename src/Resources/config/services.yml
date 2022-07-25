@@ -39,3 +39,4 @@ services:
               category: miscellaneous
               method: getResponse
               template: templates/contact-form.php
+

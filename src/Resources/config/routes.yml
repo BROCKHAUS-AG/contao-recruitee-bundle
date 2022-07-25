@@ -1,3 +1,7 @@
 brockhaus_ag_contao_recruitee.controller:
     resource: ../../../src/Controller
     type: annotation
+
+contao_recruitee_bundle.controller:
+    resource: ../../EventListener
+    type: annotation
