@@ -181,7 +181,7 @@ class AddCandidatesLogic
     private function createResponse() : void
     {
         $response_code = 200;
-        $response_message = '<h1 style="text-align: center;" class="ok">Ihre Bewerbung wurde versendet.</h1>';
+        $response_message = '<h1 style="text-align: center;" class="ok">Deine Bewerbung wurde versendet.</h1>';
         $_SESSION['recruitee_response_code'] = $response_code;
         $_SESSION['recruitee_response_message'] = $response_message;
     }
