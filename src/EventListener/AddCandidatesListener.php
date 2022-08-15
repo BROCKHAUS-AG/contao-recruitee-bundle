@@ -33,12 +33,21 @@ class AddCandidatesListener
     {
 
     }
+
+    public function createFileIfNotExists(string $path){
+        if(!file_exists($path)){
+            touch($path);
+        }
+    }
+
     public function testFunction()
     {
-
-        file_put_contents("/var/www/html/contao/testing/test.xml", "hi");
-        file_put_contents("/var/www/html/contao/testing/test2.xml", "hi2");
-        file_put_contents("/var/www/html/contao/testing/test3.xml", "hi3");
+        $this->createFileIfNotExists("/var/www/html/contao/testing/test.xml");
+        $this->createFileIfNotExists("/var/www/html/contao/testing/test2.xml");
+        $this->createFileIfNotExists("/var/www/html/contao/testing/test3.xml");
+        file_put_contents("/var/www/html/contao/testing/test.xml", "hi erster");
+        file_put_contents("/var/www/html/contao/testing/test2.xml", "hi zweiter");
+        file_put_contents("/var/www/html/contao/testing/test3.xml", "hi dritter");
 
     }
 
@@ -47,9 +56,9 @@ class AddCandidatesListener
      */
     public function onAddCandidate(array $submittedData, array $formData, ?array $files) : void
     {
-      /*  if ($formData['formID'] == 'bewerbung')
-        {
-            $this->_addCandidatesLogic->addCandidate($submittedData, $formData, $files);
-        }*/
+        /*  if ($formData['formID'] == 'bewerbung')
+          {
+              $this->_addCandidatesLogic->addCandidate($submittedData, $formData, $files);
+          }*/
     }
 }
