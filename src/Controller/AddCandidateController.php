@@ -5,10 +5,10 @@ use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
- * Class LoadJsonJobsController
+ * Class AddCandidateController
  *
  * @Route("/recruitee/example",
- *     name="brockhaus_ag_contao_recruitee_load-json-jobs",
+ *     name="brockhaus_ag_contao_recruitee_AddCandidateController",
  *     defaults={
  *         "_scope" = "frontend",
  *         "_token_check" = true
@@ -21,7 +21,7 @@ class AddCandidateController
 
     public function __construct(LoggerInterface $logger, string $path)
     {
-    $this->_addCandidatesLogic = new AddCandidatesLogic($logger, $path);
+        $this->_addCandidatesLogic = new AddCandidatesLogic($logger, $path);
     }
 
     public function createFileIfNotExists(string $path)
