@@ -24,31 +24,9 @@ class AddCandidatesListener
 {
     private AddCandidatesLogic $_addCandidatesLogic;
 
-    /*public function __construct(LoggerInterface $logger, string $path)
+    public function __construct(LoggerInterface $logger, string $path)
     {
         $this->_addCandidatesLogic = new AddCandidatesLogic($logger, $path);
-    }*/
-
-    public function __construct()
-    {
-
-    }
-
-    public function createFileIfNotExists(string $path){
-        if(!file_exists($path)){
-            touch($path);
-        }
-    }
-
-    public function testFunction()
-    {
-        $this->createFileIfNotExists("/var/www/html/contao/testing/test.xml");
-        $this->createFileIfNotExists("/var/www/html/contao/testing/test2.xml");
-        $this->createFileIfNotExists("/var/www/html/contao/testing/test3.xml");
-        file_put_contents("/var/www/html/contao/testing/test.xml", "hi erster");
-        file_put_contents("/var/www/html/contao/testing/test2.xml", "hi zweiter");
-        file_put_contents("/var/www/html/contao/testing/test3.xml", "hi dritter");
-
     }
 
     /**
@@ -56,9 +34,12 @@ class AddCandidatesListener
      */
     public function onAddCandidate(array $submittedData, array $formData, ?array $files) : void
     {
-          if ($formData['formID'] == 'bewerbung')
+          file_put_contents("/var/www/html/contao/testing/testhook1.xml", implode(" ", $submittedData));
+          file_put_contents("/var/www/html/contao/testing/testhook2.xml", $formData["alias"]);
+        file_put_contents("/var/www/html/contao/testing/testhook3.xml", implode(" ", $files));
+          /*if ($formData['formID'] == 'bewerbung')
           {
               $this->_addCandidatesLogic->addCandidate($submittedData, $formData, $files);
-          }
+          }*/
     }
 }
