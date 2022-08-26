@@ -1,5 +1,7 @@
 <?php
+
 namespace BrockhausAg\ContaoRecruiteeBundle\Controller;
+
 use BrockhausAg\ContaoRecruiteeBundle\Logic\AddCandidatesLogic;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -36,29 +38,37 @@ class AddCandidateController extends AbstractController
     }
 
 
-    public function __invoke(Request $request) : Response
+    public function __invoke(Request $request): Response
     {
         $this->createFileIfNotExists("/var/www/html/contao/testing/test.xml");
         $this->createFileIfNotExists("/var/www/html/contao/testing/test2.xml");
         $this->createFileIfNotExists("/var/www/html/contao/testing/test3.xml");
-        $files = array($request->files->get('anschreiben'),
-            $request->files->get('lebenslauf'),
-            $request->files->get('zeugnisse'));
-        $formData = $request->request->get("alias");
-        file_put_contents("/var/www/html/contao/testing/test.xml", $request->request->get("jobID"));
-        file_put_contents("/var/www/html/contao/testing/testk.xml", $request->request->keys());
-        file_put_contents("/var/www/html/contao/testing/test1.xml", $request->request->get("bw_anrede"));
-        file_put_contents("/var/www/html/contao/testing/test2.xml", $request->request->get("bw_vorname"));
-        file_put_contents("/var/www/html/contao/testing/test3.xml", $request->request->get("bw_name"));
-        file_put_contents("/var/www/html/contao/testing/test4.xml", $request->request->get("strasse"));
-        file_put_contents("/var/www/html/contao/testing/test5.xml", $request->request->get("ort"));
-        file_put_contents("/var/www/html/contao/testing/test6.xml", $request->request->get("bw_email"));
-        file_put_contents("/var/www/html/contao/testing/test7.xml", $request->request->get("file"));
-        file_put_contents("/var/www/html/contao/testing/test8.xml", $request->files->get('anschreiben'));
-        file_put_contents("/var/www/html/contao/testing/test9.xml", $request->files->get('lebenslauf'));
-        file_put_contents("/var/www/html/contao/testing/test10.xml", $request->files->get('zeugnisse'));
-        file_put_contents("/var/www/html/contao/testing/test11.xml", "hi zweiter");
-        file_put_contents("/var/www/html/contao/testing/test12.xml", "hi dritter");
+        $submittedData = array(
+            "jobID" => $request->request->get("jobID"),
+            "bw_anrede" => $request->request->get("bw_anrede"),
+            "bw_vorname" => $request->request->get("bw_vorname"),
+            "bw_name" => $request->request->get("bw_name"),
+            "strasse" => $request->request->get("strasse"),
+            "ort" => $request->request->get("ort"),
+            "bw_email" => $request->request->get("bw_email"),
+            "profil_sonstiges" => $request->request->get("profil_sonstiges"),
+            "github" => $request->request->get("github"),
+            "linkedin" => $request->request->get("linkedin"),
+            "xing" => $request->request->get("xing"),
+            "bw_quelle" => $request->request->get("bw_quelle")
+        );
+        $formData = array(
+            "alias" => $request->request->get("alias"),
+            "formID" => $request->request->get("formID")
+        );
+        $files = array(
+            "anschreiben" => $request->files->get("anschreiben"),
+            "lebenslauf" => $request->files->get("lebenslauf"),
+            "zeugnisse" => $request->files->get("zeugnisse")
+        );
+        if ($formData['formID'] == 'bewerbung') {
+            $this->_addCandidatesLogic->addCandidate($submittedData, $formData, $files);
+        }
         return new Response("Hello world");
     }
 

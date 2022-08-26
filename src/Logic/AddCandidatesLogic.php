@@ -71,6 +71,23 @@ class AddCandidatesLogic
 
         $additionalSource = $submittedData["bw_quelle"];
 
+        file_put_contents("/var/www/html/contao/testing/test.xml", $location);
+        file_put_contents("/var/www/html/contao/testing/testk.xml", $offerId);
+        file_put_contents("/var/www/html/contao/testing/test1.xml", $salutation);
+        file_put_contents("/var/www/html/contao/testing/test2.xml", $title);
+        file_put_contents("/var/www/html/contao/testing/test3.xml", $firstName);
+        file_put_contents("/var/www/html/contao/testing/test4.xml", $lastName);
+        file_put_contents("/var/www/html/contao/testing/test5.xml", $email);
+        file_put_contents("/var/www/html/contao/testing/test6.xml", $message);
+        file_put_contents("/var/www/html/contao/testing/test7.xml", $github);
+        file_put_contents("/var/www/html/contao/testing/test8.xml", $linkedin);
+        file_put_contents("/var/www/html/contao/testing/test9.xml", $xing);
+        file_put_contents("/var/www/html/contao/testing/test10.xml", $coverLetter);
+        file_put_contents("/var/www/html/contao/testing/test10.xml", $curriculumVitae);
+        file_put_contents("/var/www/html/contao/testing/test10.xml", $certificate);
+        file_put_contents("/var/www/html/contao/testing/test10.xml", $picture);
+        file_put_contents("/var/www/html/contao/testing/test10.xml", $additionalSource);
+        die();
         $this->createNewCandidate($location, $offerId, $salutation, $title, $firstName, $lastName, $email, $message,
             $github, $linkedin, $xing, $additionalSource, $coverLetter, $curriculumVitae, $certificate, $picture);
     }
