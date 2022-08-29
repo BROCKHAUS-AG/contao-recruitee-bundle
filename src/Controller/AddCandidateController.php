@@ -55,7 +55,8 @@ class AddCandidateController extends AbstractController
             "github" => $request->request->get("github"),
             "linkedin" => $request->request->get("linkedin"),
             "xing" => $request->request->get("xing"),
-            "bw_quelle" => $request->request->get("bw_quelle")
+            "bw_quelle" => $request->request->get("bw_quelle"),
+            "bw_titel" => $request->request->get("bw_titel")
         );
         $formData = array(
             "alias" => $request->request->get("alias"),

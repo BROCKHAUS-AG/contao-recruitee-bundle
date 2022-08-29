@@ -64,10 +64,10 @@ class AddCandidatesLogic
         $linkedin = $submittedData["linkedin"];
         $xing = $submittedData["xing"];
 
-        $coverLetter = $files["anschreiben"] ?? [];
-        $curriculumVitae = $files["lebenslauf"] ?? [];
-        $certificate = $files["zeugnisse"] ?? [];
-        $picture = $files["foto"] ?? [];
+        $coverLetter = array($files["anschreiben"]) ?? [];
+        $curriculumVitae = array($files["lebenslauf"]) ?? [];
+        $certificate = array($files["zeugnisse"]) ?? [];
+        $picture = array($files["foto"]) ?? [];
 
         $additionalSource = $submittedData["bw_quelle"];
 
@@ -83,11 +83,11 @@ class AddCandidatesLogic
         file_put_contents("/var/www/html/contao/testing/test8.xml", $linkedin);
         file_put_contents("/var/www/html/contao/testing/test9.xml", $xing);
         file_put_contents("/var/www/html/contao/testing/test10.xml", $coverLetter);
-        file_put_contents("/var/www/html/contao/testing/test10.xml", $curriculumVitae);
-        file_put_contents("/var/www/html/contao/testing/test10.xml", $certificate);
-        file_put_contents("/var/www/html/contao/testing/test10.xml", $picture);
-        file_put_contents("/var/www/html/contao/testing/test10.xml", $additionalSource);
-        die();
+        file_put_contents("/var/www/html/contao/testing/test11.xml", $curriculumVitae);
+        file_put_contents("/var/www/html/contao/testing/test12.xml", $certificate);
+        file_put_contents("/var/www/html/contao/testing/test13.xml", $picture);
+        file_put_contents("/var/www/html/contao/testing/test14.xml", $additionalSource);
+
         $this->createNewCandidate($location, $offerId, $salutation, $title, $firstName, $lastName, $email, $message,
             $github, $linkedin, $xing, $additionalSource, $coverLetter, $curriculumVitae, $certificate, $picture);
     }
