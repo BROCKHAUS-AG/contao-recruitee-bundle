@@ -64,9 +64,21 @@ class AddCandidatesLogic
         $linkedin = $submittedData["linkedin"];
         $xing = $submittedData["xing"];
 
-        $coverLetter = array($files["anschreiben"]) ?? [];
-        $curriculumVitae = array($files["lebenslauf"]) ?? [];
-        $certificate = array($files["zeugnisse"]) ?? [];
+        //$coverLetter = array($files["anschreiben"]) ?? [];
+        $coverLetter = array(
+            "tmp_name" => $files["anschreiben"]->getRealPath(),
+            "name" => $files["anschreiben"]->getClientOriginalName()
+        );
+        //$curriculumVitae = array($files["lebenslauf"]) ?? [];
+        $curriculumVitae = array(
+            "tmp_name" => $files["anschreiben"]->getRealPath(),
+            "name" => $files["anschreiben"]->getClientOriginalName()
+        );
+        //$certificate = array($files["zeugnisse"]) ?? [];
+        $certificate = array(
+            "tmp_name" => $files["anschreiben"]->getRealPath(),
+            "name" => $files["anschreiben"]->getClientOriginalName()
+        );
         $picture = array($files["foto"]) ?? [];
 
         $additionalSource = $submittedData["bw_quelle"];
@@ -74,6 +86,7 @@ class AddCandidatesLogic
         file_put_contents("/var/www/html/contao/testing/test.xml", $location);
         file_put_contents("/var/www/html/contao/testing/testk.xml", $offerId);
         file_put_contents("/var/www/html/contao/testing/test1.xml", $salutation);
+        file_put_contents("/var/www/html/contao/testing/test1.xml", "hallo");
         file_put_contents("/var/www/html/contao/testing/test2.xml", $title);
         file_put_contents("/var/www/html/contao/testing/test3.xml", $firstName);
         file_put_contents("/var/www/html/contao/testing/test4.xml", $lastName);
@@ -87,7 +100,6 @@ class AddCandidatesLogic
         file_put_contents("/var/www/html/contao/testing/test12.xml", $certificate);
         file_put_contents("/var/www/html/contao/testing/test13.xml", $picture);
         file_put_contents("/var/www/html/contao/testing/test14.xml", $additionalSource);
-
         $this->createNewCandidate($location, $offerId, $salutation, $title, $firstName, $lastName, $email, $message,
             $github, $linkedin, $xing, $additionalSource, $coverLetter, $curriculumVitae, $certificate, $picture);
     }
