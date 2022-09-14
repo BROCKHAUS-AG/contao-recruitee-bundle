@@ -2,8 +2,9 @@
 
 namespace BrockhausAg\ContaoRecruiteeBundle\Controller;
 
-use BrockhausAg\ContaoRecruiteeBundle\Logic\AddCandidatesLogic;
+use BrockhausAg\ContaoRecruiteeBundle\Logic\AddCandidatesLogicRoute;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
 use BrockhausAg\ContaoRecruiteeBundle\Logic\LoadJsonJobsLogic;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -13,7 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 /**
  * Class AddCandidateController
  *
- * @Route("/recruitee/example",
+ * @Route("/recruitee/sentApplication",
  *     name="brockhaus_ag_contao_recruitee_add_candidate",
  *     defaults={
  *         "_scope" = "frontend",
@@ -23,26 +24,19 @@ use Symfony\Component\HttpFoundation\Request;
  */
 class AddCandidateController extends AbstractController
 {
-    private AddCandidatesLogic $_addCandidatesLogic;
+    private AddCandidatesLogicRoute $_addCandidatesLogic;
 
     public function __construct(LoggerInterface $logger, string $path)
     {
-        $this->_addCandidatesLogic = new AddCandidatesLogic($logger, $path);
-    }
-
-    public function createFileIfNotExists(string $path)
-    {
-        if (!file_exists($path)) {
-            touch($path);
-        }
+        $this->_addCandidatesLogic = new AddCandidatesLogicRoute($logger, $path);
     }
 
 
     public function __invoke(Request $request): Response
     {
-        $this->createFileIfNotExists("/var/www/html/contao/testing/test.xml");
-        $this->createFileIfNotExists("/var/www/html/contao/testing/test2.xml");
-        $this->createFileIfNotExists("/var/www/html/contao/testing/test3.xml");
+        if(!$request->request->get("redirectPage")){
+            return new Response("Fehler ungültige Anfrage");
+        }
         $submittedData = array(
             "jobID" => $request->request->get("jobID"),
             "bw_anrede" => $request->request->get("bw_anrede"),
@@ -70,14 +64,6 @@ class AddCandidateController extends AbstractController
         if ($formData['formID'] == 'bewerbung') {
             $this->_addCandidatesLogic->addCandidate($submittedData, $formData, $files);
         }
-        return new Response("Hello world");
-    }
-
-    public function onAddCandidate(array $submittedData, array $formData, ?array $files): void
-    {
-        /*  if ($formData['formID'] == 'bewerbung')
-        {
-        $this->_addCandidatesLogic->addCandidate($submittedData, $formData, $files);
-        }*/
+        return new RedirectResponse("https://" . $request->request->get("redirectPage"));
     }
 }

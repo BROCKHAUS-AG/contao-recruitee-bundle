@@ -21,7 +21,7 @@ use Contao\CoreBundle\Monolog\ContaoContext;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
-class AddCandidatesLogic
+class AddCandidatesLogicRoute
 {
     private LoggerInterface $logger;
 
@@ -64,10 +64,26 @@ class AddCandidatesLogic
         $linkedin = $submittedData["linkedin"];
         $xing = $submittedData["xing"];
 
-        $coverLetter = $files["anschreiben"] ?? [];
-        $curriculumVitae = $files["lebenslauf"] ?? [];
-        $certificate = $files["zeugnisse"] ?? [];
-        $picture = $files["foto"] ?? [];
+
+        $coverLetter = $files["anschreiben"] ? array(
+            "tmp_name" => $files["anschreiben"]->getRealPath(),
+            "name" => $files["anschreiben"]->getClientOriginalName()
+        ) : [];
+
+        $curriculumVitae = $files["lebenslauf"] ? array(
+            "tmp_name" => $files["lebenslauf"]->getRealPath(),
+            "name" => $files["lebenslauf"]->getClientOriginalName()
+        ) : [];
+
+        $certificate = $files["zeugnisse"] ? array(
+            "tmp_name" => $files["zeugnisse"]->getRealPath(),
+            "name" => $files["zeugnisse"]->getClientOriginalName()
+        ) : [];
+
+        $picture = $files["foto"] ? array(
+            "tmp_name" => $files["foto"]->getRealPath(),
+            "name" => $files["foto"]->getClientOriginalName()
+        ) : [];
 
         $additionalSource = $submittedData["bw_quelle"];
 
@@ -181,7 +197,7 @@ class AddCandidatesLogic
     private function createResponse() : void
     {
         $response_code = 200;
-        $response_message = '<h1 style="text-align: center;" class="ok">Deine Bewerbung wurde versendet.</h1>';
+        $response_message = '<h1 style="text-align: center;" class="ok">Ihre Bewerbung wurde versendet.</h1>';
         $_SESSION['recruitee_response_code'] = $response_code;
         $_SESSION['recruitee_response_message'] = $response_message;
     }
