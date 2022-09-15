@@ -34,9 +34,9 @@ class AddCandidatesListener
      */
     public function onAddCandidate(array $submittedData, array $formData, ?array $files) : void
     {
-        if ($formData['formID'] == 'bewerbung')
-        {
-            $this->_addCandidatesLogic->addCandidate($submittedData, $formData, $files);
-        }
+          if ($formData['formID'] == 'bewerbung')
+          {
+              $this->_addCandidatesLogic->addCandidate($submittedData, $formData, $files);
+          }
     }
 }

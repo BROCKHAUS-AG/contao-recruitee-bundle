@@ -16,6 +16,8 @@
     class SendApplicationController extends AbstractFrontendModuleController
     {
         protected function sendApplication(Template $template, ModuleModel $model, Request $request){
+            var_dump($request);
+            file_put_contents("/var/www/html/contao/test.xml", "moin moin2121");
             if ($request->isMethod('post')) {
                 if (null !== ($redirectPage = PageModel::findByPk($model->jumpTo))) {
                     throw new RedirectResponseException($redirectPage->getAbsoluteUrl());
@@ -31,7 +33,7 @@
         {
             //die("send app one");
             var_dump($request);
-            file_put_contents("/var/www/html/contao/test.xml", "moin moin");
+            file_put_contents("/var/www/html/contao/test.xml", "moin moin2121");
             if ($request->isMethod('post')) {
                 //die("SEND APPLICATION!");
                 /*

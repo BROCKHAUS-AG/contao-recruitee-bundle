@@ -8,6 +8,14 @@ services:
         calls:
             - [ setContainer, [ '@Psr\Container\ContainerInterface' ] ]
 
+    BrockhausAg\ContaoRecruiteeBundle\Controller\AddCandidateController:
+        arguments:
+            - '@logger'
+            - '%kernel.project_dir%'
+        public: true
+        calls:
+            - [ setContainer, [ '@Psr\Container\ContainerInterface' ] ]
+
     BrockhausAg\ContaoRecruiteeBundle\Controller\LoadJsonJobsController:
         arguments:
             - '@logger'
@@ -38,4 +46,5 @@ services:
             - name: contao.frontend_module
               category: miscellaneous
               method: getResponse
-              #template: rsce_contact-form-with-application
+              template: templates/contact-form.php
+
