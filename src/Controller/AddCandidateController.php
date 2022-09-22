@@ -34,8 +34,14 @@ class AddCandidateController extends AbstractController
 
     public function __invoke(Request $request): Response
     {
-        if(!$request->request->get("redirectPage")){
+        if (!$request->request->get("redirectPage")) {
             return new Response("Fehler ungültige Anfrage");
+        }
+        if (str_contains($request->request->get("redirectPage"), "https://")) {
+            $url = $request->request->get("redirectPage");
+        }
+        else {
+            $url = "https://" . $request->getHost() . "/". $request->request->get("redirectPage");
         }
         $submittedData = array(
             "jobID" => $request->request->get("jobID"),
@@ -64,6 +70,6 @@ class AddCandidateController extends AbstractController
         if ($formData['formID'] == 'bewerbung') {
             $this->_addCandidatesLogic->addCandidate($submittedData, $formData, $files);
         }
-        return new RedirectResponse("https://" . $request->request->get("redirectPage"));
+        return new RedirectResponse($url);
     }
 }
