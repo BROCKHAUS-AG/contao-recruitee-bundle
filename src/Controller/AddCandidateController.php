@@ -65,7 +65,8 @@ class AddCandidateController extends AbstractController
         $files = array(
             "anschreiben" => $request->files->get("anschreiben"),
             "lebenslauf" => $request->files->get("lebenslauf"),
-            "zeugnisse" => $request->files->get("zeugnisse")
+            "zeugnisse" => $request->files->get("zeugnisse"),
+            "videobewerbung" => $request->files->get("videobewerbung")
         );
         if ($formData['formID'] == 'bewerbung') {
             $this->_addCandidatesLogic->addCandidate($submittedData, $formData, $files);

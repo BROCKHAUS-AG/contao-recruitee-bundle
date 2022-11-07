@@ -39,13 +39,13 @@ class AddCandidatesLogicRoute
         $this->locations = $ioLogic->loadRecruiteeConfigLocations();
     }
 
-    public function addCandidate(array $submittedData, array $formData, ?array $files) : void
+    public function addCandidate(array $submittedData, array $formData, ?array $files): void
     {
         $this->sendToRecruitee($submittedData, $formData, $files);
         $this->createResponse();
     }
 
-    private function sendToRecruitee(array $submittedData, array $formData, ?array $files) : void
+    private function sendToRecruitee(array $submittedData, array $formData, ?array $files): void
     {
         $location = $this->getLocationByAlias($formData["alias"]);
 
@@ -85,32 +85,37 @@ class AddCandidatesLogicRoute
             "name" => $files["foto"]->getClientOriginalName()
         ) : [];
 
+        $videoApplication = $files["videobewerbung"] ? array(
+            "tmp_name" => $files["videobewerbung"]->getRealPath(),
+            "name" => $files["videobewerbung"]->getClientOriginalName()
+        ) : [];
+
         $additionalSource = $submittedData["bw_quelle"];
 
         $this->createNewCandidate($location, $offerId, $salutation, $title, $firstName, $lastName, $email, $message,
-            $github, $linkedin, $xing, $additionalSource, $coverLetter, $curriculumVitae, $certificate, $picture);
+            $github, $linkedin, $xing, $additionalSource, $coverLetter, $curriculumVitae, $certificate, $picture, $videoApplication);
     }
 
-    private function getLocationByAlias(string $alias) : array
+    private function getLocationByAlias(string $alias): array
     {
         foreach ($this->locations as $location) {
-            if (strcmp("bewerbung-". $location["category"], $alias) == 0) {
+            if (strcmp("bewerbung-" . $location["category"], $alias) == 0) {
                 return $location;
             }
         }
         $this->logger->log(
-            LogLevel::WARNING, "Location with name ". $alias. " could not be found",
+            LogLevel::WARNING, "Location with name " . $alias . " could not be found",
             ['contao' => new ContaoContext(__METHOD__, 'TL_ACCESS')]
         );
         echo "Failed -> you can find error log in the Contao Backend";
         exit();
     }
 
-    private function createNewCandidate(array $location, $offerId, string $salutation, ?string $title,
-                                        string $firstName, string $lastName, string $email, ?string $message,
+    private function createNewCandidate(array   $location, $offerId, string $salutation, ?string $title,
+                                        string  $firstName, string $lastName, string $email, ?string $message,
                                         ?string $github, ?string $linkedin, ?string $xing, ?string $additionalSource,
-                                        array $coverLetter = [], array $curriculumVitae = [], array $certificate = [],
-                                        array $picture = []) : void
+                                        array   $coverLetter = [], array $curriculumVitae = [], array $certificate = [],
+                                        array   $picture = [], array $videoApplication = []): void
     {
         $fields = $this->createFields($salutation, $title, $firstName, $lastName, $github, $linkedin, $xing);
 
@@ -119,8 +124,8 @@ class AddCandidatesLogicRoute
         $category = $location["category"];
 
         $candidate = new Candidate(
-            $firstName.' '.$lastName,
-            array($category."-Website", $additionalSource),
+            $firstName . ' ' . $lastName,
+            array($category . "-Website", $additionalSource),
             $fields,
             array(0 => $email),
             array(),
@@ -128,63 +133,64 @@ class AddCandidatesLogicRoute
         );
 
         $candidatePost = new CandidatePost($candidate, array(0 => $offerId));
-        $candidateResponse= $this->_httpLogic->createCandidatesRequest($candidatePost, $token, $companyId);
+        $candidateResponse = $this->_httpLogic->createCandidatesRequest($candidatePost, $token, $companyId);
 
         $candidateResult = json_decode($candidateResponse, true);
         $candidateId = $candidateResult["candidate"]["id"];
 
         $this->sendAttachments($candidateId, $token, $companyId, $coverLetter, $curriculumVitae, $certificate,
-            $picture);
+            $picture, $videoApplication);
 
         $this->_httpLogic->setGDPR($candidateId, $companyId, $token);
     }
 
-    private function createFields(string $salutation, ?string $title, string $firstName, string $lastName,
-                                  ?string $github, ?string $linkedin, ?string $xing) : array
+    private function createFields(string  $salutation, ?string $title, string $firstName, string $lastName,
+                                  ?string $github, ?string $linkedin, ?string $xing): array
     {
         $fields = array();
         array_push($fields, new Field("Anrede", array($salutation)));
         array_push($fields, new Field("Vorname", array($firstName)));
         array_push($fields, new Field("Nachname", array($lastName)));
-        if($title) {
+        if ($title) {
             array_push($fields, new Field("Titel", array($title)));
         }
-        if($github) {
+        if ($github) {
             array_push($fields, new Field("Github", array($github)));
         }
-        if($linkedin) {
+        if ($linkedin) {
             array_push($fields, new Field("LinkedIn", array($linkedin)));
         }
-        if($xing) {
+        if ($xing) {
             array_push($fields, new Field("XING", array($xing)));
         }
         return $fields;
     }
 
-    private function sendAttachments(int $candidateId, string $token, string $companyId, array $coverLetter = [],
-                                     array $curriculumVitae = [], array $certificate = [], array $picture = []) : void
+    private function sendAttachments(int   $candidateId, string $token, string $companyId, array $coverLetter = [],
+                                     array $curriculumVitae = [], array $certificate = [], array $picture = [], array $videoApplication = []): void
     {
-        if($coverLetter)
-        {
+        if ($coverLetter) {
             $this->_httpLogic->uploadFileForCandidate($coverLetter["tmp_name"], $coverLetter["name"],
                 $candidateId, $token, $companyId);
         }
-        if($curriculumVitae){
-            $this->uploadFileAndAttachCv($candidateId, $curriculumVitae , $token, $companyId);
+        if ($curriculumVitae) {
+            $this->uploadFileAndAttachCv($candidateId, $curriculumVitae, $token, $companyId);
         }
-        if($certificate)
-        {
+        if ($certificate) {
             $this->_httpLogic->uploadFileForCandidate($certificate["tmp_name"], $certificate["name"],
                 $candidateId, $token, $companyId);
         }
-        if($picture)
-        {
+        if ($picture) {
             $this->_httpLogic->uploadFileForCandidate($picture["tmp_name"], $picture["name"],
+                $candidateId, $token, $companyId);
+        }
+        if ($videoApplication) {
+            $this->_httpLogic->uploadFileForCandidate($videoApplication["tmp_name"], $videoApplication["name"],
                 $candidateId, $token, $companyId);
         }
     }
 
-    private function uploadFileAndAttachCv($candidateId, $curriculumVitae , string $token, string $companyId) : void
+    private function uploadFileAndAttachCv($candidateId, $curriculumVitae, string $token, string $companyId): void
     {
         $responseJson = $this->_httpLogic->uploadFileForCandidate($curriculumVitae["tmp_name"],
             $curriculumVitae["name"], $candidateId, $token, $companyId);
@@ -194,7 +200,7 @@ class AddCandidatesLogicRoute
         $this->_httpLogic->setAttachmentAsCV($candidateId, $cvId, $token, $companyId,);
     }
 
-    private function createResponse() : void
+    private function createResponse(): void
     {
         $response_code = 200;
         $response_message = '<h1 style="text-align: center;" class="ok">Ihre Bewerbung wurde versendet.</h1>';
