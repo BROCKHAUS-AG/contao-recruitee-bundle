@@ -66,6 +66,7 @@ class AddCandidateController extends AbstractController
             "anschreiben" => $request->files->get("anschreiben"),
             "lebenslauf" => $request->files->get("lebenslauf"),
             "zeugnisse" => $request->files->get("zeugnisse"),
+            "foto" => $request->files->get("foto"),
             "videobewerbung" => $request->files->get("videobewerbung")
         );
         if ($formData['formID'] == 'bewerbung') {
