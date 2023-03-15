@@ -37,41 +37,49 @@ class AddCandidateController extends AbstractController
         if (!$request->request->get("redirectPage")) {
             return new Response("Fehler ungültige Anfrage");
         }
-        if (str_contains($request->request->get("redirectPage"), "https://")) {
-            $url = $request->request->get("redirectPage");
+        if($this->isInputValid($request)) {
+            if (str_contains($request->request->get("redirectPage"), "https://")) {
+                $url = $request->request->get("redirectPage");
+            } else {
+                $url = "https://" . $request->getHost() . "/". $request->request->get("redirectPage");
+            }
+            $submittedData = array(
+                "jobID" => $request->request->get("jobID"),
+                "bw_anrede" => $request->request->get("bw_anrede"),
+                "bw_vorname" => $request->request->get("bw_vorname"),
+                "bw_name" => $request->request->get("bw_name"),
+                "strasse" => $request->request->get("strasse"),
+                "ort" => $request->request->get("ort"),
+                "bw_email" => $request->request->get("bw_email"),
+                "profil_sonstiges" => $request->request->get("profil_sonstiges"),
+                "github" => $request->request->get("github"),
+                "linkedin" => $request->request->get("linkedin"),
+                "xing" => $request->request->get("xing"),
+                "bw_quelle" => $request->request->get("bw_quelle"),
+                "bw_titel" => $request->request->get("bw_titel")
+            );
+            $formData = array(
+                "alias" => $request->request->get("alias"),
+                "formID" => $request->request->get("formID")
+            );
+            $files = array(
+                "anschreiben" => $request->files->get("anschreiben"),
+                "lebenslauf" => $request->files->get("lebenslauf"),
+                "zeugnisse" => $request->files->get("zeugnisse"),
+                "foto" => $request->files->get("foto"),
+                "videobewerbung" => $request->files->get("videobewerbung")
+            );
+            if ($formData['formID'] == 'bewerbung') {
+                $this->_addCandidatesLogic->addCandidate($submittedData, $formData, $files);
+            }
+            return new RedirectResponse($url);
+        } else {
+            return new Response("Fehler ungültige Formulareingabe");
         }
-        else {
-            $url = "https://" . $request->getHost() . "/". $request->request->get("redirectPage");
-        }
-        $submittedData = array(
-            "jobID" => $request->request->get("jobID"),
-            "bw_anrede" => $request->request->get("bw_anrede"),
-            "bw_vorname" => $request->request->get("bw_vorname"),
-            "bw_name" => $request->request->get("bw_name"),
-            "strasse" => $request->request->get("strasse"),
-            "ort" => $request->request->get("ort"),
-            "bw_email" => $request->request->get("bw_email"),
-            "profil_sonstiges" => $request->request->get("profil_sonstiges"),
-            "github" => $request->request->get("github"),
-            "linkedin" => $request->request->get("linkedin"),
-            "xing" => $request->request->get("xing"),
-            "bw_quelle" => $request->request->get("bw_quelle"),
-            "bw_titel" => $request->request->get("bw_titel")
-        );
-        $formData = array(
-            "alias" => $request->request->get("alias"),
-            "formID" => $request->request->get("formID")
-        );
-        $files = array(
-            "anschreiben" => $request->files->get("anschreiben"),
-            "lebenslauf" => $request->files->get("lebenslauf"),
-            "zeugnisse" => $request->files->get("zeugnisse"),
-            "foto" => $request->files->get("foto"),
-            "videobewerbung" => $request->files->get("videobewerbung")
-        );
-        if ($formData['formID'] == 'bewerbung') {
-            $this->_addCandidatesLogic->addCandidate($submittedData, $formData, $files);
-        }
-        return new RedirectResponse($url);
+    }
+
+    private function isInputValid(Request $input) : bool {
+        return $input->request->get("bw_vorname") && $input->request->get("bw_nachname") && $input->request->get("bw_email")
+            && $input->request->get("jobID") && ($input->request->get("spam") == $input->request->get("spamKey"));
     }
 }
