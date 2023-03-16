@@ -79,7 +79,6 @@ class AddCandidateController extends AbstractController
     }
 
     private function isInputValid(Request $input) : bool {
-        return $input->request->get("bw_vorname") && $input->request->get("bw_nachname") && $input->request->get("bw_email")
-            && $input->request->get("jobID") && ($input->request->get("spam") == $input->request->get("spamKey"));
+        return $input->request->get("spam") == $input->request->get("spamKey");
     }
 }
