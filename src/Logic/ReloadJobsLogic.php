@@ -47,7 +47,7 @@ class ReloadJobsLogic
         $jobDescription = $offer["description"];
         $requirements = $offer["requirements"];
 
-        if($job["status"] == "internal" || $job["status"] == "published") {
+        if($job["status"] == "published") {
             return array(
                 'stellenname' => $job['title'],
                 'id' => $job['id'],
