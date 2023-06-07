@@ -3,6 +3,7 @@
 namespace BrockhausAg\ContaoRecruiteeBundle\Controller;
 
 use BrockhausAg\ContaoRecruiteeBundle\Logic\AddCandidatesLogicRoute;
+use BrockhausAg\ContaoRecruiteeBundle\Logic\IOLogic;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -25,14 +26,33 @@ use Symfony\Component\HttpFoundation\Request;
 class AddCandidateController extends AbstractController
 {
     private AddCandidatesLogicRoute $_addCandidatesLogic;
-
+    private IOLogic $ioLogic;
+    private array $websites;
+    private string $privateToken;
+    private string $requestingServer;
     public function __construct(LoggerInterface $logger, string $path)
     {
         $this->_addCandidatesLogic = new AddCandidatesLogicRoute($logger, $path);
+
+        $this->ioLogic = new IOLogic($logger, $path);
+        $this->websites = $this->ioLogic->loadRecruiteeConfigWebsites();
     }
 
 
     public function __invoke(Request $request): Response
+    {
+        $this->requestingServer = $request->server->get("SERVER_NAME");
+        if ($this->isReCaptchaActiveForRequestingWebsite($this->requestingServer)) {
+            $captchaResponse = $this->verifyCaptcha($request);
+            if(!$captchaResponse->success || $captchaResponse->success && $captchaResponse->score < 0.6) {
+                return new Response("ReCaptcha hat die Anfrage als ungültig eingestuft");
+            }
+        }
+
+        return $this->handleRequest($request);
+    }
+
+    private function handleRequest(Request $request) : Response
     {
         if (!$request->request->get("redirectPage")) {
             return new Response("Fehler ungültige Anfrage");
@@ -72,6 +92,38 @@ class AddCandidateController extends AbstractController
         if ($formData['formID'] == 'bewerbung') {
             $this->_addCandidatesLogic->addCandidate($submittedData, $formData, $files);
         }
+
         return new RedirectResponse($url);
+    }
+
+    private function verifyCaptcha(Request $request) {
+        $url = "https://www.google.com/recaptcha/api/siteverify";
+        $privateToken = $this->ioLogic->getPrivateTokenByServerName($this->requestingServer);
+        $fields = [
+            "secret" => $privateToken,
+            "response" => $request->request->get("spamKey")
+        ];
+        $fieldsAsString = http_build_query($fields);
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $fieldsAsString);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        $result = curl_exec($curl);
+        return json_decode($result);
+    }
+
+    private function isReCaptchaActiveForRequestingWebsite(string $serverName) : bool
+    {
+        $isActive = false;
+        for($index = 0; $index < count($this->websites); $index++) {
+            if($this->websites[$index]["serverName"] == $serverName) {
+                if($this->websites[$index]["reCaptchaPrivateToken"]) {
+                    $isActive = true;
+                    break;
+                }
+            }
+        }
+        return $isActive;
     }
 }

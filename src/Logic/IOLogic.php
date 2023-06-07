@@ -63,6 +63,11 @@ class IOLogic {
         return $this->loadRecruiteeConfig()["locations"];
     }
 
+    public function loadRecruiteeConfigWebsites() : array
+    {
+        return $this->loadRecruiteeConfig()["websites"];
+    }
+
     public function createPathWithJobsFile() : string
     {
         $path = $this->createPath();
@@ -96,5 +101,16 @@ class IOLogic {
     public function getTimestampFromJsonJobsFile() : int
     {
         return $this->loadJobs()["timestamp"];
+    }
+
+    public function getPrivateTokenByServerName(string $givenServerName) : string
+    {
+        $privateToken = "";
+        foreach($this->loadRecruiteeConfigWebsites() as $website) {
+            if($website["serverName"] == $givenServerName) {
+                $privateToken = $website["reCaptchaPrivateToken"];
+            }
+        }
+        return $privateToken;
     }
 }
