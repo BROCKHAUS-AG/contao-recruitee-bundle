@@ -29,6 +29,9 @@ haben wir alles Wissenswerte für dich zusammengefasst.
    3. Der Punkt "companyIdentifier" kommt ebenfalls aus recruitee. Diese Company Id wird zur
       Identifizierung des Standortes benötigt.
    4. Unter dem Punkt "category" gibst du deinen Form Alias an, damit das Bundle das Formular erkennt.
+   5. Konfiguration für googles reCaptcha v3 (Optional)
+      1. Unter dem Punkt "serverName" gibst du den Namen vom Server ein, wie er in dem Request steht
+      2. Unter dem Punkt "reCaptchaPrivateToken" setzt du den von google reCaptcha vorgegebenen private Token ein
 7. Wenn du die Datei angepasst hast, kannst du sie in dem Ordner
    "html/contao/settings/brockhaus-ag/contao-recruitee-bundle/" ablegen.
 8. Sobald alle Schritte abgeschlossen sind, kannst du mit dem nächsten Schritt "[Ich bin fertig, wie kann
