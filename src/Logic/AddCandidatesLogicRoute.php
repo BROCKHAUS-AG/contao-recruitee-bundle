@@ -65,10 +65,14 @@ class AddCandidatesLogicRoute
         $xing = $submittedData["xing"];
 
 
-        $coverLetter = $files["anschreiben"] ? array(
-            "tmp_name" => $files["anschreiben"]->getRealPath(),
-            "name" => $files["anschreiben"]->getClientOriginalName()
-        ) : [];
+        $coverLetter = [];
+        if ($files["anschreiben"]) {
+            for ($i = 0; $i < count($files["anschreiben"]); $i++) {
+                $tmpName = $files["anschreiben"][$i]->getRealPath();
+                $name = $files["anschreiben"][$i]->getClientOriginalName();
+                array_push($coverLetter, array("tmp_name" => $tmpName, "name" => $name));
+            }
+        }
 
         $curriculumVitae = $files["lebenslauf"] ? array(
             "tmp_name" => $files["lebenslauf"]->getRealPath(),
@@ -170,8 +174,10 @@ class AddCandidatesLogicRoute
                                      array $curriculumVitae = [], array $certificate = [], array $picture = [], array $videoApplication = []): void
     {
         if ($coverLetter) {
-            $this->_httpLogic->uploadFileForCandidate($coverLetter["tmp_name"], $coverLetter["name"],
-                $candidateId, $token, $companyId);
+            for($i = 0; $i < count($coverLetter); $i++) {
+                $this->_httpLogic->uploadFileForCandidate($coverLetter[$i]["tmp_name"], $coverLetter[$i]["name"],
+                    $candidateId, $token, $companyId);
+            }
         }
         if ($curriculumVitae) {
             $this->uploadFileAndAttachCv($candidateId, $curriculumVitae, $token, $companyId);
@@ -203,7 +209,7 @@ class AddCandidatesLogicRoute
     private function createResponse(): void
     {
         $response_code = 200;
-        $response_message = '<h1 style="text-align: center;" class="ok">Ihre Bewerbung wurde versendet.</h1>';
+        $response_message = '<h1 style="text-align: center;" class="ok">Deine Bewerbung wurde versendet.</h1>';
         $_SESSION['recruitee_response_code'] = $response_code;
         $_SESSION['recruitee_response_message'] = $response_message;
     }

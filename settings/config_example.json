@@ -12,5 +12,15 @@
       "companyIdentifier": "",
       "category": ""
     }
+  ],
+  "websites":[
+    {
+      "serverName":"",
+      "reCaptchaPrivateToken":""
+    },
+    {
+      "serverName":"",
+      "reCaptchaPrivateToken":""
+    }
   ]
 }
