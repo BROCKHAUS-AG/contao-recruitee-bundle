@@ -29,10 +29,14 @@ class AddCandidatesLogicRoute
 
     private array $locations;
 
-    public function __construct(LoggerInterface $logger, string $path)
+    private string $isTesting;
+
+    public function __construct(LoggerInterface $logger, string $path, string $isTesting)
     {
         $this->logger = $logger;
         $this->_httpLogic = new HttpLogic();
+
+        $this->isTesting = $isTesting;
 
 
         $ioLogic = new IOLogic($logger, $path);
@@ -136,16 +140,19 @@ class AddCandidatesLogicRoute
             $message
         );
 
-        $candidatePost = new CandidatePost($candidate, array(0 => $offerId));
-        $candidateResponse = $this->_httpLogic->createCandidatesRequest($candidatePost, $token, $companyId);
+        $testValidationString = "THIS_IS_A_TEST";
+        if($this->isTesting == $testValidationString) {
+            $candidatePost = new CandidatePost($candidate, array(0 => $offerId));
+            $candidateResponse = $this->_httpLogic->createCandidatesRequest($candidatePost, $token, $companyId);
 
-        $candidateResult = json_decode($candidateResponse, true);
-        $candidateId = $candidateResult["candidate"]["id"];
+            $candidateResult = json_decode($candidateResponse, true);
+            $candidateId = $candidateResult["candidate"]["id"];
 
-        $this->sendAttachments($candidateId, $token, $companyId, $coverLetter, $curriculumVitae, $certificate,
-            $picture, $videoApplication);
+            $this->sendAttachments($candidateId, $token, $companyId, $coverLetter, $curriculumVitae, $certificate,
+                $picture, $videoApplication);
 
-        $this->_httpLogic->setGDPR($candidateId, $companyId, $token);
+            $this->_httpLogic->setGDPR($candidateId, $companyId, $token);
+        }
     }
 
     private function createFields(string  $salutation, ?string $title, string $firstName, string $lastName,

@@ -30,9 +30,14 @@ class AddCandidateController extends AbstractController
     private array $websites;
     private string $privateToken;
     private string $requestingServer;
+
+    private LoggerInterface $logger;
+    private string $path;
+
     public function __construct(LoggerInterface $logger, string $path)
     {
-        $this->_addCandidatesLogic = new AddCandidatesLogicRoute($logger, $path);
+        $this->logger = $logger;
+        $this->path = $path;
 
         $this->ioLogic = new IOLogic($logger, $path);
         $this->websites = $this->ioLogic->loadRecruiteeConfigWebsites();
@@ -41,6 +46,9 @@ class AddCandidateController extends AbstractController
 
     public function __invoke(Request $request): Response
     {
+        $isTesting = $request->request->get("isTesting");
+        $this->_addCandidatesLogic = new AddCandidatesLogicRoute($this->logger, $this->path, $isTesting);
+
         $this->requestingServer = $request->server->get("SERVER_NAME");
         if ($this->isReCaptchaActiveForRequestingWebsite($this->requestingServer)) {
             $captchaResponse = $this->verifyCaptcha($request);
