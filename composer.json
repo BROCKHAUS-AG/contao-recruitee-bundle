@@ -27,7 +27,7 @@
         "source": "https://github.com/brockhaus-ag/contao-recruitee-bundle"
     },
     "require": {
-      "contao/core-bundle": "^4.9",
+      "contao/core-bundle": "^4.13",
       "ext-gd": "*",
       "ext-curl": "*",
       "ext-json": "*"
