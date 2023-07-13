@@ -141,7 +141,7 @@ class AddCandidatesLogicRoute
         );
 
         $testValidationString = "THIS_IS_A_TEST";
-        if($this->isTesting == $testValidationString) {
+        if($this->isTesting != $testValidationString) {
             $candidatePost = new CandidatePost($candidate, array(0 => $offerId));
             $candidateResponse = $this->_httpLogic->createCandidatesRequest($candidatePost, $token, $companyId);
 
