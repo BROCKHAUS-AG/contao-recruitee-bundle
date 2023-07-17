@@ -111,6 +111,8 @@ unter dem Punkt "[Backend-API -> Jobs laden](#jobs-laden)".
     "xing": "",
     //
     "bw_quelle": "",
+   
+   "bw_contact": "",
     // Bewerbungsanschreiben
     "anschreiben": [
 

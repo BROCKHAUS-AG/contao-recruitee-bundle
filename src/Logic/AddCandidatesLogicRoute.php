@@ -99,9 +99,10 @@ class AddCandidatesLogicRoute
         ) : [];
 
         $additionalSource = $submittedData["bw_quelle"];
+        $contact = $submittedData["bw_contact"];
 
         $this->createNewCandidate($location, $offerId, $salutation, $title, $firstName, $lastName, $email, $message,
-            $github, $linkedin, $xing, $additionalSource, $coverLetter, $curriculumVitae, $certificate, $picture, $videoApplication);
+            $github, $linkedin, $xing, $additionalSource, $contact, $coverLetter, $curriculumVitae, $certificate, $picture, $videoApplication);
     }
 
     private function getLocationByAlias(string $alias): array
@@ -121,7 +122,7 @@ class AddCandidatesLogicRoute
 
     private function createNewCandidate(array   $location, $offerId, string $salutation, ?string $title,
                                         string  $firstName, string $lastName, string $email, ?string $message,
-                                        ?string $github, ?string $linkedin, ?string $xing, ?string $additionalSource,
+                                        ?string $github, ?string $linkedin, ?string $xing, ?string $additionalSource, ?string $contact,
                                         array   $coverLetter = [], array $curriculumVitae = [], array $certificate = [],
                                         array   $picture = [], array $videoApplication = []): void
     {
@@ -133,7 +134,7 @@ class AddCandidatesLogicRoute
 
         $candidate = new Candidate(
             $firstName . ' ' . $lastName,
-            array($category . "-Website", $additionalSource),
+            array($category . "-Website", $additionalSource, $contact),
             $fields,
             array(0 => $email),
             array(),
@@ -141,7 +142,7 @@ class AddCandidatesLogicRoute
         );
 
         $testValidationString = "THIS_IS_A_TEST";
-        if($this->isTesting != $testValidationString) {
+        if ($this->isTesting != $testValidationString) {
             $candidatePost = new CandidatePost($candidate, array(0 => $offerId));
             $candidateResponse = $this->_httpLogic->createCandidatesRequest($candidatePost, $token, $companyId);
 
@@ -181,7 +182,7 @@ class AddCandidatesLogicRoute
                                      array $curriculumVitae = [], array $certificate = [], array $picture = [], array $videoApplication = []): void
     {
         if ($coverLetter) {
-            for($i = 0; $i < count($coverLetter); $i++) {
+            for ($i = 0; $i < count($coverLetter); $i++) {
                 $this->_httpLogic->uploadFileForCandidate($coverLetter[$i]["tmp_name"], $coverLetter[$i]["name"],
                     $candidateId, $token, $companyId);
             }
