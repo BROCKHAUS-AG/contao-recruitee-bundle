@@ -4,6 +4,7 @@ namespace BrockhausAg\ContaoRecruiteeBundle\Controller;
 
 use BrockhausAg\ContaoRecruiteeBundle\Logic\AddCandidatesLogicRoute;
 use BrockhausAg\ContaoRecruiteeBundle\Logic\IOLogic;
+use Couchbase\ReplaceOptions;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Response;
@@ -47,6 +48,9 @@ class AddCandidateController extends AbstractController
     public function __invoke(Request $request): Response
     {
         $isTesting = $request->request->get("isTesting");
+        if($isTesting == null) {
+            $isTesting = "";
+        }
         $this->_addCandidatesLogic = new AddCandidatesLogicRoute($this->logger, $this->path, $isTesting);
 
         $this->requestingServer = $request->server->get("SERVER_NAME");
@@ -84,6 +88,7 @@ class AddCandidateController extends AbstractController
             "linkedin" => $request->request->get("linkedin"),
             "xing" => $request->request->get("xing"),
             "bw_quelle" => $request->request->get("bw_quelle"),
+            "bw_contactMethod" => $request->request->get("bw_contact"),
             "bw_titel" => $request->request->get("bw_titel")
         );
         $formData = array(
