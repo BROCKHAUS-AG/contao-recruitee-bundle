@@ -30,7 +30,6 @@ class AddCandidateController extends AbstractController
     private IOLogic $ioLogic;
     private array $websites;
     private string $privateToken;
-    private string $requestingServer;
 
     private LoggerInterface $logger;
     private string $path;
@@ -52,14 +51,6 @@ class AddCandidateController extends AbstractController
             $isTesting = "";
         }
         $this->_addCandidatesLogic = new AddCandidatesLogicRoute($this->logger, $this->path, $isTesting);
-
-        $this->requestingServer = $request->server->get("SERVER_NAME");
-        if ($this->isReCaptchaActiveForRequestingWebsite($this->requestingServer)) {
-            $captchaResponse = $this->verifyCaptcha($request);
-            if(!$captchaResponse->success || $captchaResponse->success && $captchaResponse->score < 0.6) {
-                return new Response("ReCaptcha hat die Anfrage als ungültig eingestuft");
-            }
-        }
 
         return $this->handleRequest($request);
     }
@@ -109,34 +100,4 @@ class AddCandidateController extends AbstractController
         return new RedirectResponse($url);
     }
 
-    private function verifyCaptcha(Request $request) {
-        $url = "https://www.google.com/recaptcha/api/siteverify";
-        $privateToken = $this->ioLogic->getPrivateTokenByServerName($this->requestingServer);
-        $fields = [
-            "secret" => $privateToken,
-            "response" => $request->request->get("spamKey")
-        ];
-        $fieldsAsString = http_build_query($fields);
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_POST, true);
-        curl_setopt($curl, CURLOPT_POSTFIELDS, $fieldsAsString);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        $result = curl_exec($curl);
-        return json_decode($result);
-    }
-
-    private function isReCaptchaActiveForRequestingWebsite(string $serverName) : bool
-    {
-        $isActive = false;
-        for($index = 0; $index < count($this->websites); $index++) {
-            if($this->websites[$index]["serverName"] == $serverName) {
-                if($this->websites[$index]["reCaptchaPrivateToken"]) {
-                    $isActive = true;
-                    break;
-                }
-            }
-        }
-        return $isActive;
-    }
 }
