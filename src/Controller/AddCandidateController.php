@@ -55,10 +55,14 @@ class AddCandidateController extends AbstractController
         $userInput = $request->request->get("spam");
         $actualValue = $request->request->get("spamKey");
 
-        if($this->validateCustomCaptcha($userInput, $actualValue)) {
-            return $this->handleRequest($request);
+        if($actualValue == null || $actualValue == "") {
+            return new Response("Fehler leerer captcha code");
         } else {
-            return new Response("Fehler falscher captcha code");
+            if($this->validateCustomCaptcha($userInput, $actualValue)) {
+                return $this->handleRequest($request);
+            } else {
+                return new Response("Fehler falscher captcha code");
+            }
         }
     }
 
