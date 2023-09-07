@@ -52,7 +52,14 @@ class AddCandidateController extends AbstractController
         }
         $this->_addCandidatesLogic = new AddCandidatesLogicRoute($this->logger, $this->path, $isTesting);
 
-        return $this->handleRequest($request);
+        $userInput = $request->request->get("spam");
+        $actualValue = $request->request->get("spamKey");
+
+        if($this->validateCustomCaptcha($userInput, $actualValue)) {
+            return $this->handleRequest($request);
+        } else {
+            return new Response("Fehler falscher captcha code");
+        }
     }
 
     private function handleRequest(Request $request) : Response
@@ -98,6 +105,10 @@ class AddCandidateController extends AbstractController
         }
 
         return new RedirectResponse($url);
+    }
+
+    private function validateCustomCaptcha($userInput, $actualValue) {
+        return $userInput == $actualValue;
     }
 
 }
