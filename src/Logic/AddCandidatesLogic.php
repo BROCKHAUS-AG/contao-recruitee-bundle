@@ -70,10 +70,9 @@ class AddCandidatesLogic
         $picture = $files["foto"] ?? [];
 
         $additionalSource = $submittedData["bw_quelle"];
-        $contact = $submittedData["bw_contact"];
 
         $this->createNewCandidate($location, $offerId, $salutation, $title, $firstName, $lastName, $email, $message,
-            $github, $linkedin, $xing, $additionalSource,$contact, $coverLetter, $curriculumVitae, $certificate, $picture);
+            $github, $linkedin, $xing, $additionalSource, $coverLetter, $curriculumVitae, $certificate, $picture);
     }
 
     private function getLocationByAlias(string $alias) : array
@@ -94,8 +93,8 @@ class AddCandidatesLogic
     private function createNewCandidate(array $location, $offerId, string $salutation, ?string $title,
                                         string $firstName, string $lastName, string $email, ?string $message,
                                         ?string $github, ?string $linkedin, ?string $xing, ?string $additionalSource,
-                                        ?string $contactMethod, array $coverLetter = [], array $curriculumVitae = [],
-                                        array $certificate = [], array $picture = []) : void
+                                        array $coverLetter = [], array $curriculumVitae = [], array $certificate = [],
+                                        array $picture = []) : void
     {
         $fields = $this->createFields($salutation, $title, $firstName, $lastName, $github, $linkedin, $xing);
 
@@ -105,7 +104,7 @@ class AddCandidatesLogic
 
         $candidate = new Candidate(
             $firstName.' '.$lastName,
-            array($category."-Website", $additionalSource, $contactMethod),
+            array($category."-Website", $additionalSource),
             $fields,
             array(0 => $email),
             array(),

@@ -99,10 +99,9 @@ class AddCandidatesLogicRoute
         ) : [];
 
         $additionalSource = $submittedData["bw_quelle"];
-        $contact = $submittedData["bw_contact"];
 
         $this->createNewCandidate($location, $offerId, $salutation, $title, $firstName, $lastName, $email, $message,
-            $github, $linkedin, $xing, $additionalSource, $contact, $coverLetter, $curriculumVitae, $certificate, $picture, $videoApplication);
+            $github, $linkedin, $xing, $additionalSource, $coverLetter, $curriculumVitae, $certificate, $picture, $videoApplication);
     }
 
     private function getLocationByAlias(string $alias): array
@@ -122,7 +121,7 @@ class AddCandidatesLogicRoute
 
     private function createNewCandidate(array   $location, $offerId, string $salutation, ?string $title,
                                         string  $firstName, string $lastName, string $email, ?string $message,
-                                        ?string $github, ?string $linkedin, ?string $xing, ?string $additionalSource, ?string $contactMethod,
+                                        ?string $github, ?string $linkedin, ?string $xing, ?string $additionalSource,
                                         array   $coverLetter = [], array $curriculumVitae = [], array $certificate = [],
                                         array   $picture = [], array $videoApplication = []): void
     {
@@ -134,7 +133,7 @@ class AddCandidatesLogicRoute
 
         $candidate = new Candidate(
             $firstName . ' ' . $lastName,
-            array($category . "-Website", $additionalSource, $contactMethod),
+            array($category . "-Website", $additionalSource),
             $fields,
             array(0 => $email),
             array(),
@@ -178,7 +177,7 @@ class AddCandidatesLogicRoute
         return $fields;
     }
 
-    private function sendAttachments(int   $candidateId, string $token, string $companyId, array $coverLetter = [],
+    private function sendAttachments(int $candidateId, string $token, string $companyId, array $coverLetter = [],
                                      array $curriculumVitae = [], array $certificate = [], array $picture = [], array $videoApplication = []): void
     {
         if ($coverLetter) {
