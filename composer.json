@@ -30,8 +30,7 @@
       "contao/core-bundle": "^4.13",
       "ext-gd": "*",
       "ext-curl": "*",
-      "ext-json": "*",
-      "ext-xdebug": "*"
+      "ext-json": "*"
     },
     "require-dev": {
         "contao/manager-plugin": "^2.3",
