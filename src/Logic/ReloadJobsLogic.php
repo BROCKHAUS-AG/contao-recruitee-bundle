@@ -51,12 +51,16 @@ class ReloadJobsLogic
             return array(
                 'stellenname' => $job['title'],
                 'id' => $job['id'],
-                'einsatzort' => $job['city'],
+                'einsatzort' => $job['location'] ?? '',
                 'tags' => $job['offer_tags'],
                 '_url' => $job['url'],
-                'kategorie'=> $category,
+                'kategorie' => $category,
                 'bildurl' => $job["department"],
-                'stellenbeschreibung' => $jobDescription . "\n\n\n".$requirements
+                'stellenbeschreibung' => $jobDescription . "\n\n\n" . $requirements,
+                'location_ids' => $job['location_ids'] ?? [],
+                'office' => $job['office'] ?? false,
+                'hybrid' => $job['hybrid'] ?? false,
+                'remote' => $job['remote'] ?? false,
             );
         }
         return null;
