@@ -75,7 +75,7 @@ class ReloadJobsLogic
         if ($jobs) {
             foreach ($jobs["offers"] as $job) {
                 $offer = $this->getOfferFromApiById($job["id"], $bearerToken, $companyIdentifier)["offer"];
-                $job['einsatzort'] = $this->getLocationWithIdFromApi($companyIdentifier, $bearerToken, 0);
+                $job['einsatzort'] = $this->getLocationWithIdFromApi($companyIdentifier, $bearerToken, $offer['location_ids'][0]);
                 $jobDescription = $this->createJob($job, $offer, $category);
                 if ($jobDescription) {
                     array_push($jobDescriptions, $jobDescription);
