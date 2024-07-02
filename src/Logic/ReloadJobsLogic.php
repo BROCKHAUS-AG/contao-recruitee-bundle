@@ -22,7 +22,7 @@ use Psr\Log\LoggerInterface;
 DEFINE("RECRUITEE_URL", "https://api.recruitee.com");
 DEFINE("OFFERS_URL", RECRUITEE_URL . "/c/%s/offers");
 DEFINE("OFFERS_BY_ID_URL", OFFERS_URL . "/%d");
-DEFINE("LOCATIONS_URL", RECRUITEE_URL . "/locations");
+DEFINE("LOCATIONS_URL", RECRUITEE_URL . "/c/%s/locations");
 DEFINE("LOCATIONS_BY_ID_URL", LOCATIONS_URL . "/%d");
 
 class ReloadJobsLogic
@@ -75,7 +75,7 @@ class ReloadJobsLogic
         if ($jobs) {
             foreach ($jobs["offers"] as $job) {
                 $offer = $this->getOfferFromApiById($job["id"], $bearerToken, $companyIdentifier)["offer"];
-                $job['einsatzort'] = $this->getLocationWithIdFromApi($companyIdentifier, $bearerToken, $offer['location_ids'][0]);
+                $job['einsatzort'] = $this->getLocationByIdFromApi($companyIdentifier, $bearerToken, $offer['location_ids'][0]);
                 $jobDescription = $this->createJob($job, $offer, $category);
                 if ($jobDescription) {
                     array_push($jobDescriptions, $jobDescription);
@@ -102,8 +102,10 @@ class ReloadJobsLogic
 
     private function createLocationsUrlWithCompanyIdAndLocationId(string $companyId, int $locationId):string
     {
-        return sprintf(LOCATIONS_URL, $companyId);
+        return sprintf(LOCATIONS_URL, $companyId, $locationId);
     }
+
+
 
     private function createOffersURLWithCompanyIdAndOfferId(string $companyId, int $offerId): string
     {
@@ -116,7 +118,7 @@ class ReloadJobsLogic
         return $this->_httpLogic->httpGetWithBearerToken($offersUrl, $bearerToken);
     }
 
-    private function getLocationWithIdFromApi(string $companyId, string $bearerToken, int $locationId): ?array
+    private function getLocationByIdFromApi(string $companyId, string $bearerToken, int $locationId): ?array
     {
         $locationsUrlWithId = $this->createLocationsUrlWithCompanyIdAndLocationId($companyId, $locationId);
         return $this->_httpLogic->httpGetWithBearerToken($locationsUrlWithId, $bearerToken);
