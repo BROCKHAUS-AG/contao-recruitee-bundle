@@ -134,7 +134,7 @@ class AddCandidatesLogicRoute
 
         $candidate = new Candidate(
             $firstName . ' ' . $lastName,
-            array($category . "-Website", $additionalSource, $contact),
+            array($category . "-Website", $additionalSource),
             $fields,
             array(0 => $email),
             array(),
