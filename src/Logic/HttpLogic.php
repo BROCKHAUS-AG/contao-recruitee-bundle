@@ -14,6 +14,9 @@ declare(strict_types=1);
 
 namespace BrockhausAg\ContaoRecruiteeBundle\Logic;
 
+use Psr\Log\LoggerInterface;
+use Psr\Log\LogLevel;
+
 DEFINE("RECRUITEE_URL", "https://api.recruitee.com/c/");
 DEFINE("RECURITEE_URL_COMPANY_ID", "%s");
 
@@ -26,8 +29,25 @@ class HttpLogic
         return RECRUITEE_URL. sprintf(RECURITEE_URL_COMPANY_ID, $companyId);
     }
 
-    public function httpGetWithBearerToken(string $url, string $bearerToken) : ?array
+    public function httpGetWithBearerToken(string $url, string $bearerToken, LoggerInterface $logger) : ?array
     {
+        $tries = 0;
+        while ($tries < 5) {
+            $logger->log(LogLevel::INFO, "Retrieving data from $url");
+            $response = $this->directRequest($url, $bearerToken, $logger);
+            if($response == null) {
+                $tries++;
+                $logger->log(LogLevel::INFO, "Retrieving data from $url");
+                sleep(10);
+                continue;
+            }
+            return $response;
+        }
+        $logger->log(LogLevel::WARNING, "Retrieving data from $url was not possible");
+        return null;
+    }
+
+    private function directRequest(string $url, string $bearerToken, LoggerInterface $logger) : ?array {
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
@@ -54,7 +74,7 @@ class HttpLogic
         curl_close($curl);
 
         if ($err) {
-            echo "Http curl error for url: ". $url. " Error:" . $err;
+            $logger->log(LogLevel::ERROR, "HTTP curl error for url: '" . $url . "' with error: " . $err);
             return null;
         }
         return json_decode($response, true);

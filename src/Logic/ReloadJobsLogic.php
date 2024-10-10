@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace BrockhausAg\ContaoRecruiteeBundle\Logic;
 
+use Psr\Log\LogLevel;
 use Symfony\Component\HttpFoundation\Response;
 use Twig\Environment as TwigEnvironment;
 use Psr\Log\LoggerInterface;
@@ -28,6 +29,7 @@ DEFINE("LOCATIONS_BY_ID_URL", LOCATIONS_URL . "/%d");
 class ReloadJobsLogic
 {
     private TwigEnvironment $twig;
+    private LoggerInterface $logger;
 
     private IOLogic $_ioLogic;
     private HttpLogic $_httpLogic;
@@ -37,6 +39,7 @@ class ReloadJobsLogic
     public function __construct(TwigEnvironment $twig, LoggerInterface $logger, string $path)
     {
         $this->twig = $twig;
+        $this->logger = $logger;
 
         $this->_ioLogic = new IOLogic($logger, $path);
         $this->_httpLogic = new HttpLogic();
@@ -70,13 +73,33 @@ class ReloadJobsLogic
 
     private function getJob(string $companyIdentifier, string $bearerToken, string $category): array
     {
+        $this->logger->log(LogLevel::INFO, "Getting jobs from API");
         $jobs = $this->getJobsFromApi($companyIdentifier, $bearerToken);
+        if($jobs == null) {
+            $this->logger->log(LogLevel::CRITICAL, "Jobs from API not found");
+            exit;
+        }
+        $this->logger->log(LogLevel::INFO, "Loaded Jobs");
         $jobDescriptions = array();
         if ($jobs) {
             foreach ($jobs["offers"] as $job) {
+                $this->logger->log(LogLevel::INFO, "Getting offer from API");
                 $offer = $this->getOfferFromApiById($job["id"], $bearerToken, $companyIdentifier)["offer"];
+                if($offer == null || $offer['location_ids'] == null) {
+                    $this->logger->log(LogLevel::WARNING, "Offer or location_ids null, skipping offer: ". implode(", ", $offer));
+                    continue;
+                }
+                $this->logger->log(LogLevel::INFO, "Loaded offer");
+                $this->logger->log(LogLevel::INFO, "Getting location from API");
                 $job['einsatzort'] = $this->getLocationByIdFromApi($companyIdentifier, $bearerToken, $offer['location_ids'][0]);
+                if($job['einsatzort'] == null) {
+                    $this->logger->log(LogLevel::WARNING, "Location not found");
+                    continue;
+                }
+                $this->logger->log(LogLevel::INFO, "Loaded location");
+                $this->logger->log(LogLevel::INFO, "Creating job");
                 $jobDescription = $this->createJob($job, $offer, $category);
+                $this->logger->log(LogLevel::INFO, "Job created");
                 if ($jobDescription) {
                     array_push($jobDescriptions, $jobDescription);
                 }
@@ -115,19 +138,19 @@ class ReloadJobsLogic
     private function getJobsFromApi(string $companyId, string $bearerToken): ?array
     {
         $offersUrl = $this->createOffersUrlWithCompanyId($companyId);
-        return $this->_httpLogic->httpGetWithBearerToken($offersUrl, $bearerToken);
+        return $this->_httpLogic->httpGetWithBearerToken($offersUrl, $bearerToken, $this->logger);
     }
 
     private function getLocationByIdFromApi(string $companyId, string $bearerToken, int $locationId): ?array
     {
         $locationsUrlWithId = $this->createLocationsUrlWithCompanyIdAndLocationId($companyId, $locationId);
-        return $this->_httpLogic->httpGetWithBearerToken($locationsUrlWithId, $bearerToken);
+        return $this->_httpLogic->httpGetWithBearerToken($locationsUrlWithId, $bearerToken, $this->logger);
     }
 
     private function getOfferFromApiById(int $offerId, string $bearerToken, string $companyId): ?array
     {
         $offersUrl = $this->createOffersURLWithCompanyIdAndOfferId($companyId, $offerId);
-        return $this->_httpLogic->httpGetWithBearerToken($offersUrl, $bearerToken);
+        return $this->_httpLogic->httpGetWithBearerToken($offersUrl, $bearerToken, $this->logger);
     }
 
     private function saveJobs(array $jobs)
