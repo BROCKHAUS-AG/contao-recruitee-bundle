@@ -86,7 +86,7 @@ class ReloadJobsLogic
                 $this->logger->log(LogLevel::INFO, "Getting offer from API");
                 $offer = $this->getOfferFromApiById($job["id"], $bearerToken, $companyIdentifier)["offer"];
                 if($offer == null || $offer['location_ids'] == null) {
-                    $this->logger->log(LogLevel::WARNING, "Offer or location_ids null, skipping offer: ". implode(", ", $offer));
+                    $this->logger->log(LogLevel::WARNING, "Offer or location_ids null, skipping offer: " . json_encode($offer));
                     continue;
                 }
                 $this->logger->log(LogLevel::INFO, "Loaded offer");
