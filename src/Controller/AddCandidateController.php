@@ -93,6 +93,11 @@ class AddCandidateController extends AbstractController
             "bw_contactMethod" => $request->request->get("bw_contact"),
             "bw_titel" => $request->request->get("bw_titel")
         );
+        if(str_contains(strtolower($request->request->get("jobName")), "praktikum")) {
+            $submittedData["desired_salary"] = $request->request->get("desired_salary");
+            $submittedData["desired_start"] = $request->request->get("desired_start");
+            $submittedData["desired_end"] = $request->request->get("desired_end");
+        }
         $formData = array(
             "alias" => $request->request->get("alias"),
             "formID" => $request->request->get("formID")
