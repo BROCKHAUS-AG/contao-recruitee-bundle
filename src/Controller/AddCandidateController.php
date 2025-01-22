@@ -91,12 +91,15 @@ class AddCandidateController extends AbstractController
             "xing" => $request->request->get("xing"),
             "bw_quelle" => $request->request->get("bw_quelle"),
             "bw_contactMethod" => $request->request->get("bw_contact"),
-            "bw_titel" => $request->request->get("bw_titel")
+            "bw_titel" => $request->request->get("bw_titel"),
         );
-        if(str_contains(strtolower($request->request->get("jobName")), "praktikum")) {
-            $submittedData["desired_salary"] = $request->request->get("desired_salary");
-            $submittedData["desired_start"] = $request->request->get("desired_start");
-            $submittedData["desired_end"] = $request->request->get("desired_end");
+        $errorMessage = $this->validateAndAppendInternData($submittedData,
+            $request->request->get("desired_salary"),
+            $request->request->get("desired_start"),
+            $request->request->get("desired_end")
+        );
+        if(!empty($errorMessage)) {
+            return new Response($errorMessage);
         }
         $formData = array(
             "alias" => $request->request->get("alias"),
@@ -116,7 +119,49 @@ class AddCandidateController extends AbstractController
         return new RedirectResponse($url);
     }
 
-    private function validateCustomCaptcha($userInput, $actualValue) {
+    private function validateAndAppendInternData($submittedData, $desiredSalary, $desiredStart, $desiredEnd): string {
+        if(!is_numeric($desiredSalary) || $desiredSalary < 0)
+            return "Fehler: Vergütung muss numerisch sein!";
+
+        $errorMessage = $this->validateDates($desiredStart, $desiredEnd);
+
+        if(!empty($errorMessage)) {
+            return $errorMessage;
+        }
+
+        $submittedData["desired_salary"] = $desiredSalary;
+        $submittedData["desired_start"] = $desiredStart;
+        $submittedData["desired_end"] = $desiredEnd;
+
+        return "";
+    }
+
+    private function validateDates($desiredStart, $desiredEnd): string {
+        $_desiredStart = htmlspecialchars(strip_tags($desiredStart));
+        $_desiredEnd = htmlspecialchars(strip_tags($desiredEnd));
+
+        if (!$this->validateTimeFormat($desiredStart) || !$this->validateTimeFormat($desiredEnd)) {
+            return "Fehler bei der Bewerbung: Bitte geben Sie das Datum im Format YYYY-MM-DD ein.";
+        }
+
+        $startTimestamp = strtotime($_desiredStart);
+        $endTimestamp = strtotime($_desiredEnd);
+        $currentTimestamp = strtotime(date('Y-m-d')); // Get today's date as a timestamp
+
+        if ($startTimestamp < $currentTimestamp)
+            return "Fehler bei der Bewerbung: Der Startzeitpunkt darf nicht in der Vergangenheit liegen.";
+
+        if ($startTimestamp > $endTimestamp)
+            return "Fehler bei der Bewerbung: Der Startzeitpunkt darf nicht nach dem Endzeitpunkt liegen.";
+
+        return "";
+    }
+
+    private function validateTimeFormat($timeString): bool {
+        return preg_match("/^\d{4}-\d{2}-\d{2}$/", $timeString);
+    }
+
+    private function validateCustomCaptcha($userInput, $actualValue): bool{
         return $userInput == $actualValue;
     }
 
