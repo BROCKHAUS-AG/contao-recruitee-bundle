@@ -120,7 +120,7 @@ class AddCandidateController extends AbstractController
         return new RedirectResponse($url);
     }
 
-    private function validateAndAppendInternData($submittedData, $desiredStart, $desiredEnd): string {
+    private function validateAndAppendInternData(&$submittedData, $desiredStart, $desiredEnd): string {
         $errorMessage = $this->validateDates($desiredStart, $desiredEnd);
 
         if(!empty($errorMessage)) {
