@@ -102,13 +102,12 @@ class AddCandidatesLogicRoute
         $contact = $submittedData["bw_contact"];
 
         /* Praktikumsfelder */
-        $desiredSalary = $submittedData["desired_salary"];
         $desiredStart = $submittedData["desired_start"];
         $desiredEnd = $submittedData["desired_end"];
 
         $this->createNewCandidate($location, $offerId, $salutation, $title, $firstName, $lastName, $email, $message,
             $github, $linkedin, $xing, $additionalSource, $contact, $coverLetter, $curriculumVitae, $certificate, $picture, $videoApplication,
-            $desiredSalary, $desiredStart, $desiredEnd);
+            $desiredStart, $desiredEnd);
     }
 
     private function getLocationByAlias(string $alias): array
@@ -130,11 +129,11 @@ class AddCandidatesLogicRoute
                                         string  $firstName, string $lastName, string $email, ?string $message,
                                         ?string $github, ?string $linkedin, ?string $xing, ?string $additionalSource, ?string $contact,
                                         array   $coverLetter = [], array $curriculumVitae = [], array $certificate = [],
-                                        array   $picture = [], array $videoApplication = [], ?string $desiredSalary = "",
+                                        array   $picture = [], array $videoApplication = [],
                                         ?string $desiredStart = "", ?string $desiredEnd = ""): void
     {
         $fields = $this->createFields($salutation, $title, $firstName, $lastName, $github, $linkedin, $xing,
-            $desiredSalary, $desiredStart, $desiredEnd);
+            $desiredStart, $desiredEnd);
 
         $token = $location["bearerToken"];
         $companyId = $location["companyIdentifier"];
@@ -166,7 +165,7 @@ class AddCandidatesLogicRoute
     }
 
     private function createFields(string  $salutation, ?string $title, string $firstName, string $lastName,
-                                  ?string $github, ?string $linkedin, ?string $xing, ?string $desiredSalary = "",
+                                  ?string $github, ?string $linkedin, ?string $xing,
                                   ?string $desiredStart = "", ?string $desiredEnd = ""): array
     {
         $fields = array();
@@ -184,9 +183,6 @@ class AddCandidatesLogicRoute
         }
         if ($xing) {
             array_push($fields, new Field("XING", array($xing)));
-        }
-        if($desiredSalary) {
-            array_push($fields, new Field("Vergütung", array($desiredSalary)));
         }
         if($desiredStart) {
             array_push($fields, new Field("Startzeitpunkt", array($desiredStart)));

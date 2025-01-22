@@ -93,13 +93,14 @@ class AddCandidateController extends AbstractController
             "bw_contactMethod" => $request->request->get("bw_contact"),
             "bw_titel" => $request->request->get("bw_titel"),
         );
-        $errorMessage = $this->validateAndAppendInternData($submittedData,
-            $request->request->get("desired_salary"),
-            $request->request->get("desired_start"),
-            $request->request->get("desired_end")
-        );
-        if(!empty($errorMessage)) {
-            return new Response($errorMessage);
+        if(!empty($request->request->get("desired_start")) && !empty($request->request->get("desired_end"))) {
+            $errorMessage = $this->validateAndAppendInternData($submittedData,
+                $request->request->get("desired_start"),
+                $request->request->get("desired_end")
+            );
+            if(!empty($errorMessage)) {
+                return new Response($errorMessage);
+            }
         }
         $formData = array(
             "alias" => $request->request->get("alias"),
@@ -119,17 +120,13 @@ class AddCandidateController extends AbstractController
         return new RedirectResponse($url);
     }
 
-    private function validateAndAppendInternData($submittedData, $desiredSalary, $desiredStart, $desiredEnd): string {
-        if(!is_numeric($desiredSalary) || $desiredSalary < 0)
-            return "Fehler: Vergütung muss numerisch sein!";
-
+    private function validateAndAppendInternData($submittedData, $desiredStart, $desiredEnd): string {
         $errorMessage = $this->validateDates($desiredStart, $desiredEnd);
 
         if(!empty($errorMessage)) {
             return $errorMessage;
         }
 
-        $submittedData["desired_salary"] = $desiredSalary;
         $submittedData["desired_start"] = $desiredStart;
         $submittedData["desired_end"] = $desiredEnd;
 
