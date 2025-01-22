@@ -150,6 +150,7 @@ class AddCandidatesLogicRoute
         );
 
         $testValidationString = "THIS_IS_A_TEST";
+        //
         if ($this->isTesting != $testValidationString) {
             $candidatePost = new CandidatePost($candidate, array(0 => $offerId));
             $candidateResponse = $this->_httpLogic->createCandidatesRequest($candidatePost, $token, $companyId);
@@ -185,7 +186,7 @@ class AddCandidatesLogicRoute
             array_push($fields, new Field("XING", array($xing)));
         }
         if($desiredSalary) {
-            array_push($fields, new Field("Gewünschte Bezahlung", array($desiredSalary)));
+            array_push($fields, new Field("Vergütung", array($desiredSalary)));
         }
         if($desiredStart) {
             array_push($fields, new Field("Startzeitpunkt", array($desiredStart)));
