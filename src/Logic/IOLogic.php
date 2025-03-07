@@ -58,6 +58,11 @@ class IOLogic {
         return $this->loadJsonFileAndDecode($path);
     }
 
+    public function loadAlternateApplicationURL()
+    {
+        return $this->loadRecruiteeConfig()["alternateApplicationURL"];
+    }
+
     public function loadRecruiteeConfigLocations() : array
     {
         return $this->loadRecruiteeConfig()["locations"];

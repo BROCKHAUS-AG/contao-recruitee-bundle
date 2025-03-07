@@ -4,14 +4,11 @@ namespace BrockhausAg\ContaoRecruiteeBundle\Controller;
 
 use BrockhausAg\ContaoRecruiteeBundle\Logic\AddCandidatesLogicRoute;
 use BrockhausAg\ContaoRecruiteeBundle\Logic\IOLogic;
-use Couchbase\ReplaceOptions;
 use Psr\Log\LoggerInterface;
-use Symfony\Component\HttpFoundation\RedirectResponse;
-use Symfony\Component\HttpFoundation\Response;
-use BrockhausAg\ContaoRecruiteeBundle\Logic\LoadJsonJobsLogic;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 /**
  * Class AddCandidateController
@@ -33,6 +30,7 @@ class AddCandidateController extends AbstractController
 
     private LoggerInterface $logger;
     private string $path;
+    private $alternateApplicationURL;
 
     public function __construct(LoggerInterface $logger, string $path)
     {
@@ -41,6 +39,7 @@ class AddCandidateController extends AbstractController
 
         $this->ioLogic = new IOLogic($logger, $path);
         $this->websites = $this->ioLogic->loadRecruiteeConfigWebsites();
+        $this->alternateApplicationURL = $this->ioLogic->loadAlternateApplicationURL();
     }
 
 
@@ -59,7 +58,15 @@ class AddCandidateController extends AbstractController
             return new Response("Fehler leerer captcha code");
         } else {
             if($this->validateCustomCaptcha($userInput, $actualValue)) {
-                return $this->handleRequest($request);
+                try {
+                    $response = $this->handleRequest($request);
+                } catch (\Exception) {
+                    return new Response(
+                        "Es ist ein Fehler aufgetreten! Bitte schicke deine Bewerbung über <a href='" . $this->alternateApplicationURL . "'>diesen Link</a>",
+                        500
+                    );
+                }
+                return $response;
             } else {
                 return new Response("Fehler falscher captcha code");
             }

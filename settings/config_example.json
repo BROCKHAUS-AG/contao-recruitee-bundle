@@ -22,5 +22,6 @@
       "serverName":"",
       "reCaptchaPrivateToken":""
     }
-  ]
+  ],
+  "alternateApplicationURL": ""
 }
