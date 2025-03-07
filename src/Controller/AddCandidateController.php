@@ -60,7 +60,7 @@ class AddCandidateController extends AbstractController
             if($this->validateCustomCaptcha($userInput, $actualValue)) {
                 try {
                     $response = $this->handleRequest($request);
-                } catch (\Exception) {
+                } catch (\Exception | \Throwable) {
                     return new Response(
                         "Es ist ein Fehler aufgetreten! Bitte schicke deine Bewerbung über <a href='" . $this->alternateApplicationURL . "'>diesen Link</a>",
                         500
