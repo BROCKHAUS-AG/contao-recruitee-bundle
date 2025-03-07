@@ -6,6 +6,7 @@ use BrockhausAg\ContaoRecruiteeBundle\Logic\AddCandidatesLogicRoute;
 use BrockhausAg\ContaoRecruiteeBundle\Logic\IOLogic;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -62,7 +63,7 @@ class AddCandidateController extends AbstractController
                     $response = $this->handleRequest($request);
                 } catch (\Exception | \Throwable) {
                     return new Response(
-                        "Es ist ein Fehler aufgetreten! Bitte schicke deine Bewerbung über <a href='" . $this->alternateApplicationURL . "'>diesen Link</a>",
+                        "<script>alert('Es ist ein Fehler aufgetreten! Bitte sende deine Bewerbung erneut.');window.location.href='" . $this->alternateApplicationURL . "'</script>",
                         500
                     );
                 }
