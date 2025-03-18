@@ -61,7 +61,7 @@ class AddCandidateController extends AbstractController
             if($this->validateCustomCaptcha($userInput, $actualValue)) {
                 try {
                     $response = $this->handleRequest($request);
-                } catch (\Exception | \Throwable) {
+                } catch (\Throwable $ex) {
                     return new Response(
                         "<script>alert('Es ist ein Fehler aufgetreten! Bitte sende deine Bewerbung erneut.');window.location.href='" . $this->alternateApplicationURL . "'</script>",
                         500
@@ -81,9 +81,12 @@ class AddCandidateController extends AbstractController
         }
         if (str_contains($request->request->get("redirectPage"), "https://")) {
             $url = $request->request->get("redirectPage");
-        }
-        else {
-            $url = "https://" . $request->getHost() . "/". $request->request->get("redirectPage");
+        } else {
+            if(str_starts_with($request->request->get("redirectPage"), "/")) {
+                $url = "https://" . $request->getHost() . $request->request->get("redirectPage");
+            } else {
+                $url = "https://" . $request->getHost() . "/". $request->request->get("redirectPage");
+            }
         }
         $submittedData = array(
             "jobID" => $request->request->get("jobID"),
