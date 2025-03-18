@@ -6,7 +6,7 @@ services:
             - '%kernel.project_dir%'
         public: true
         calls:
-            - [ setContainer, [ '@Psr\Container\ContainerInterface' ] ]
+            - [ setContainer, [ '@service_container' ] ]
 
     BrockhausAg\ContaoRecruiteeBundle\Controller\AddCandidateController:
         arguments:
@@ -14,7 +14,7 @@ services:
             - '%kernel.project_dir%'
         public: true
         calls:
-            - [ setContainer, [ '@Psr\Container\ContainerInterface' ] ]
+            - [ setContainer, [ '@service_container' ] ]
 
     BrockhausAg\ContaoRecruiteeBundle\Controller\LoadJsonJobsController:
         arguments:
@@ -22,7 +22,7 @@ services:
             - '%kernel.project_dir%'
         public: true
         calls:
-            - [ setContainer, [ '@Psr\Container\ContainerInterface' ] ]
+            - [ setContainer, [ '@service_container' ] ]
 
     BrockhausAg\ContaoRecruiteeBundle\Controller\ReloadJobsController:
         arguments:
@@ -31,7 +31,7 @@ services:
             - '%kernel.project_dir%'
         public: true
         calls:
-            - [ setContainer, [ '@Psr\Container\ContainerInterface' ] ]
+            - [ setContainer, [ '@service_container' ] ]
 
     BrockhausAg\ContaoRecruiteeBundle\EventListener\AddCandidatesListener:
         arguments:
@@ -40,11 +40,3 @@ services:
         public: true
         tags:
             - { name: contao.hook, hook: addCandidate, method: onAddCandidate }
-
-    BrockhausAg\ContaoRecruiteeBundle\Controller\FrontendModule\SendApplicationController:
-        tags:
-            - name: contao.frontend_module
-              category: miscellaneous
-              method: getResponse
-              template: templates/contact-form.php
-

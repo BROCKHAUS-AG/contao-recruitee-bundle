@@ -27,17 +27,17 @@
         "source": "https://github.com/brockhaus-ag/contao-recruitee-bundle"
     },
     "require": {
-      "contao/core-bundle": "^4.13",
+      "contao/core-bundle": "5.3.*",
       "ext-gd": "*",
       "ext-curl": "*",
       "ext-json": "*"
     },
     "require-dev": {
-        "contao/manager-plugin": "^2.3",
-        "contao/test-case": "^4.0",
-        "phpunit/phpunit": "9.3.0",
-        "symfony/http-client": "5.4.*",
-        "symfony/phpunit-bridge": "4.4.*"
+        "contao/manager-plugin": "*",
+        "contao/test-case": "*",
+        "phpunit/phpunit": "*",
+        "symfony/http-client": "*",
+        "symfony/phpunit-bridge": "*"
     },
     "autoload": {
         "psr-4": {
