@@ -52,20 +52,55 @@ class ReloadJobsLogic
         $jobDescription = $offer["description"];
         $requirements = $offer["requirements"];
 
+        // FIX 1: Remote / Hybrid Logik für Tellent/Recruitee
+        // Prüft auf 'remote_type' (z.B. "remote_full", "hybrid")
+        $remoteType = $offer['remote_type'] ?? $job['remote_type'] ?? null;
+        $isRemote = ($remoteType === 'remote_full');
+        $isHybrid = ($remoteType === 'hybrid');
+        // Wenn kein Typ da ist oder explizit "office_only", dann ist es Office
+        $isOffice = ($remoteType === null || $remoteType === 'office_only');
+
+        // FIX 2: Tags (Der korrekte API-Name ist 'tags')
+        $tags = $job['tags'] ?? [];
+
+        // FIX 3: URL (Der korrekte API-Name für den öffentlichen Link ist 'careers_url')
+        $url = $job['careers_url'] ?? $job['url'] ?? '';
+
+        // FIX 4: Einsatzort Fallback
+        // Wir nehmen den Ort, den wir im Loop (siehe unten) ermittelt haben.
+        // Falls der leer ist, nehmen wir als Notlösung das Textfeld 'location'.
+        $finalLocation = "";
+        if (!empty($job['einsatzort'])) {
+            $finalLocation = $job['einsatzort'];
+        } else {
+            $finalLocation = $job['location'] ?? '';
+        }
+
+        // FIX 5: Bild URL (Social Media Image statt Abteilung)
+        $bildUrl = "";
+        // Prüfen ob im Detail-Datensatz ($offer) ein Bild liegt
+        if (isset($offer['social_media_image']) && !empty($offer['social_media_image'])) {
+            $bildUrl = $offer['social_media_image'];
+        }
+        // Manchmal liegt es auch direkt im Listen-Datensatz ($job)
+        elseif (isset($job['social_media_image']) && !empty($job['social_media_image'])) {
+            $bildUrl = $job['social_media_image'];
+        }
+
         if ($job["status"] == "published") {
             return array(
                 'stellenname' => $job['title'],
                 'id' => $job['id'],
-                'einsatzort' => $job['location'] ?? '',
-                'tags' => $job['offer_tags'],
-                '_url' => $job['url'],
+                'einsatzort' => $finalLocation,
+                'tags' => $tags,
+                '_url' => $url,
                 'kategorie' => $category,
-                'bildurl' => $job["department"],
+                'bildurl' => $bildUrl,
                 'stellenbeschreibung' => $jobDescription . "\n\n\n" . $requirements,
                 'location_ids' => $job['location_ids'] ?? [],
-                'office' => $job['office'] ?? false,
-                'hybrid' => $job['hybrid'] ?? false,
-                'remote' => $job['remote'] ?? false,
+                'office' => $isOffice,
+                'hybrid' => $isHybrid,
+                'remote' => $isRemote,
             );
         }
         return null;
@@ -73,33 +108,50 @@ class ReloadJobsLogic
 
     private function getJob(string $companyIdentifier, string $bearerToken, string $category): array
     {
-        $this->logger->log(LogLevel::INFO, "Getting jobs from API");
+        $this->logger->log(LogLevel::INFO, "Getting jobs from API for " . $companyIdentifier);
         $jobs = $this->getJobsFromApi($companyIdentifier, $bearerToken);
+
         if($jobs == null) {
-            $this->logger->log(LogLevel::CRITICAL, "Jobs from API not found");
+            $this->logger->log(LogLevel::CRITICAL, "Jobs from API not found. Check Bearer Token!");
             exit;
         }
-        $this->logger->log(LogLevel::INFO, "Loaded Jobs");
+
+        $this->logger->log(LogLevel::INFO, "Loaded Jobs count: " . count($jobs['offers'] ?? []));
         $jobDescriptions = array();
-        if ($jobs) {
+
+        if ($jobs && isset($jobs["offers"])) {
             foreach ($jobs["offers"] as $job) {
-                $this->logger->log(LogLevel::INFO, "Getting offer from API");
-                $offer = $this->getOfferFromApiById($job["id"], $bearerToken, $companyIdentifier)["offer"];
-                if($offer == null || $offer['location_ids'] == null) {
-                    $this->logger->log(LogLevel::WARNING, "Offer or location_ids null, skipping offer: " . json_encode($offer));
+
+                // Detailabfrage für jeden Job
+                $offerResponse = $this->getOfferFromApiById($job["id"], $bearerToken, $companyIdentifier);
+                $offer = $offerResponse["offer"] ?? null;
+
+                if($offer == null) {
                     continue;
                 }
-                $this->logger->log(LogLevel::INFO, "Loaded offer");
-                $this->logger->log(LogLevel::INFO, "Getting location from API");
-                $job['einsatzort'] = $this->getLocationByIdFromApi($companyIdentifier, $bearerToken, $offer['location_ids'][0]);
-                if($job['einsatzort'] == null) {
-                    $this->logger->log(LogLevel::WARNING, "Location not found");
-                    continue;
+
+                // FIX: Verbesserte Location Logik
+                $cityName = "";
+
+                // Versuch 1: Über Location ID (wenn vorhanden) die Stadt abfragen
+                if (isset($offer['location_ids']) && count($offer['location_ids']) > 0) {
+                    $locationResponse = $this->getLocationByIdFromApi($companyIdentifier, $bearerToken, $offer['location_ids'][0]);
+                    if (isset($locationResponse['location']) && isset($locationResponse['location']['city'])) {
+                        $cityName = $locationResponse['location']['city'];
+                    }
                 }
-                $this->logger->log(LogLevel::INFO, "Loaded location");
-                $this->logger->log(LogLevel::INFO, "Creating job");
+
+                // Versuch 2: Fallback auf das Textfeld 'location' im Job selbst
+                // Das greift, wenn keine ID hinterlegt ist (z.B. bei Remote Jobs)
+                if (empty($cityName) && isset($job['location']) && is_string($job['location'])) {
+                    $cityName = $job['location'];
+                }
+
+                // Wir speichern das Ergebnis im Array, damit createJob es nutzen kann
+                $job['einsatzort'] = $cityName;
+
                 $jobDescription = $this->createJob($job, $offer, $category);
-                $this->logger->log(LogLevel::INFO, "Job created");
+
                 if ($jobDescription) {
                     array_push($jobDescriptions, $jobDescription);
                 }
@@ -112,8 +164,11 @@ class ReloadJobsLogic
     {
         $jobs = array();
         foreach ($this->locations as $location) {
-            $job = $this->getJob($location["companyIdentifier"], $location["bearerToken"], $location["category"]);
-            array_push($jobs, $job);
+            $result = $this->getJob($location["companyIdentifier"], $location["bearerToken"], $location["category"]);
+            // FIX: Array merge nutzen, da getJob ein Array zurückgibt
+            if (is_array($result)) {
+                $jobs = array_merge($jobs, $result);
+            }
         }
         return $jobs;
     }
@@ -127,8 +182,6 @@ class ReloadJobsLogic
     {
         return sprintf(LOCATIONS_URL, $companyId, $locationId);
     }
-
-
 
     private function createOffersURLWithCompanyIdAndOfferId(string $companyId, int $offerId): string
     {
