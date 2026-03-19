@@ -56,16 +56,16 @@ class ReloadJobsLogic
             return array(
                 'stellenname' => $job['title'],
                 'id' => $job['id'],
-                'einsatzort' => $job['location'] ?? '',
-                'tags' => $job['offer_tags'],
-                '_url' => $job['url'],
+                'einsatzort' => $offer['city'] ?? '',
+                'tags' => $offer['offer_tags'] ?? [],
+                '_url' => $offer['careers_url'] ?? $offer['url'] ?? '',
                 'kategorie' => $category,
-                'bildurl' => $job["department"],
+                'bildurl' => $offer['department'] ?? '',
                 'stellenbeschreibung' => $jobDescription . "\n\n\n" . $requirements,
-                'location_ids' => $job['location_ids'] ?? [],
-                'office' => $job['office'] ?? false,
-                'hybrid' => $job['hybrid'] ?? false,
-                'remote' => $job['remote'] ?? false,
+                'location_ids' => $offer['location_ids'] ?? [],
+                'office' => (bool) ($offer['on_site'] ?? false),
+                'hybrid' => (bool) ($offer['hybrid'] ?? false),
+                'remote' => (bool) ($offer['remote'] ?? false),
             );
         }
         return null;
@@ -84,19 +84,12 @@ class ReloadJobsLogic
         if ($jobs) {
             foreach ($jobs["offers"] as $job) {
                 $this->logger->log(LogLevel::INFO, "Getting offer from API");
-                $offer = $this->getOfferFromApiById($job["id"], $bearerToken, $companyIdentifier)["offer"];
-                if($offer == null || $offer['location_ids'] == null) {
-                    $this->logger->log(LogLevel::WARNING, "Offer or location_ids null, skipping offer: " . json_encode($offer));
+                $offerResponse = $this->getOfferFromApiById($job["id"], $bearerToken, $companyIdentifier);
+                $offer = $offerResponse["offer"] ?? null;
+                if ($offer == null) {
+                    $this->logger->log(LogLevel::WARNING, "Offer null, skipping offer id: " . $job["id"]);
                     continue;
                 }
-                $this->logger->log(LogLevel::INFO, "Loaded offer");
-                $this->logger->log(LogLevel::INFO, "Getting location from API");
-                $job['einsatzort'] = $this->getLocationByIdFromApi($companyIdentifier, $bearerToken, $offer['location_ids'][0]);
-                if($job['einsatzort'] == null) {
-                    $this->logger->log(LogLevel::WARNING, "Location not found");
-                    continue;
-                }
-                $this->logger->log(LogLevel::INFO, "Loaded location");
                 $this->logger->log(LogLevel::INFO, "Creating job");
                 $jobDescription = $this->createJob($job, $offer, $category);
                 $this->logger->log(LogLevel::INFO, "Job created");
