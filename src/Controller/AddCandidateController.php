@@ -129,6 +129,10 @@ class AddCandidateController extends AbstractController
             "videobewerbung" => $request->files->get("videobewerbung"),
             "foto" => $request->files->get("foto")
         );
+        $maxFileSize = (int) $request->request->get("MAX_FILE_SIZE", 100000000);
+        if ($this->totalFileSizeExceedsLimit($files, $maxFileSize)) {
+            return new Response("Maximale Dateigröße von 100MB überschritten");
+        }
         if ($formData['formID'] == 'bewerbung') {
             $this->_addCandidatesLogic->addCandidate($submittedData, $formData, $files);
         }
@@ -176,6 +180,22 @@ class AddCandidateController extends AbstractController
 
     private function validateCustomCaptcha($userInput, $actualValue): bool{
         return $userInput == $actualValue;
+    }
+
+    private function totalFileSizeExceedsLimit(array $fileArray, int $maxBytes): bool
+    {
+        $total = 0;
+        foreach ($fileArray as $fileField) {
+            if ($fileField === null) continue;
+            if (is_array($fileField)) {
+                foreach ($fileField as $fileEntry) {
+                    if ($fileEntry !== null) $total += $fileEntry->getSize();
+                }
+            } else {
+                $total += $fileField->getSize();
+            }
+        }
+        return $total > $maxBytes;
     }
 
 }
