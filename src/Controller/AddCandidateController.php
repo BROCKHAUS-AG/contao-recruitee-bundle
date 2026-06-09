@@ -46,6 +46,12 @@ class AddCandidateController extends AbstractController
 
     public function __invoke(Request $request): Response
     {
+        $contentLength = (int) $request->server->get('CONTENT_LENGTH', 0);
+        if ($contentLength > 0 && $request->request->count() === 0) {
+            $_SESSION['recruitee_response_message'] = '<p class="error">Maximale Dateigröße von 100MB überschritten</p>';
+            return new RedirectResponse($this->alternateApplicationURL);
+        }
+
         $isTesting = $request->request->get("isTesting");
         if($isTesting == null) {
             $isTesting = "";
